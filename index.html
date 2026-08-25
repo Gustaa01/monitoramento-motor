@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Industrial - Motor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e2f;
+            --text-main: #ffffff;
+            --text-muted: #a0a0b5;
+            --accent-blue: #00d2ff;
+            --alert-red: #ff4757;
+            --ok-green: #2ed573;
+            --warn-yellow: #ffa502;
+        }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background-color: var(--panel-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--accent-blue); }
+        .motor-title input { background: transparent; border: none; border-bottom: 1px dashed var(--text-muted); color: var(--accent-blue); font-size: 28px; font-weight: bold; width: 400px; outline: none; }
+        .motor-info { font-size: 14px; color: var(--text-muted); text-align: right; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background-color: var(--panel-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; }
+        .card h2 { margin: 0 0 10px 0; font-size: 20px; color: var(--text-muted); }
+        .valor-display { font-size: 40px; font-weight: bold; margin: 10px 0; }
+        .unidade { font-size: 18px; color: #888; }
+        .chart-container { width: 100%; height: 200px; margin-top: 15px; }
+        .status-on { color: var(--ok-green); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="motor-title">
+            <label style="display:block; font-size: 12px; color: #a0a0b5;">NOME DO EQUIPAMENTO (Pode editar):</label>
+            <input type="text" id="nome-motor" value="Motor do rolo de água da unidade 1">
+        </div>
+        <div class="motor-info">
+            <strong>Status:</strong> <span class="status-on">ATIVO 🟢</span><br>
+            <strong>Tempo de Atividade:</strong> <span id="uptime">00:00:00</span><br>
+            <strong>Especificações:</strong> Trifásico 220V | 5 CV | 1750 RPM
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card" style="border-top: 4px solid var(--alert-red);">
+            <h2>Temperatura</h2>
+            <div><span class="valor-display" id="val-temp">--</span> <span class="unidade">°C</span></div>
+            <div class="chart-container"><canvas id="graficoTemp"></canvas></div>
+        </div>
+        <div class="card" style="border-top: 4px solid var(--ok-green);">
+            <h2>Corrente (RMS)</h2>
+            <div><span class="valor-display" id="val-corrente">--</span> <span class="unidade">A</span></div>
+            <div class="chart-container"><canvas id="graficoCorrente"></canvas></div>
+        </div>
+        <div class="card" style="border-top: 4px solid var(--warn-yellow);">
+            <h2>Vibração (Pico)</h2>
+            <div><span class="valor-display" id="val-vibracao">--</span> <span class="unidade">mm/s</span></div>
+            <div class="chart-container"><canvas id="graficoVibracao"></canvas></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAc6EkUGTdk7V78rl74Gs66t2mLtH1-lzY",
+  authDomain: "tcc-motor-senai.firebaseapp.com",
+  projectId: "tcc-motor-senai",
+  storageBucket: "tcc-motor-senai.firebasestorage.app",
+  messagingSenderId: "964076129849",
+  appId: "1:964076129849:web:2e86e2b9ee2af7ef5cc7e8"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const maxPontos = 15;
+        
+        function criarGrafico(ctxId, corLinha) {
+            return new Chart(document.getElementById(ctxId), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: corLinha, borderWidth: 2, tension: 0.4, pointRadius: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { beginAtZero: true } } }
+            });
+        }
+
+        const chartTemp = criarGrafico('graficoTemp', '#ff4757');
+        const chartCorrente = criarGrafico('graficoCorrente', '#2ed573');
+        const chartVibracao = criarGrafico('graficoVibracao', '#ffa502');
+
+        function atualizarGrafico(chart, valor) {
+            const agora = new Date().toLocaleTimeString();
+            chart.data.labels.push(agora);
+            chart.data.datasets[0].data.push(valor);
+            if (chart.data.labels.length > maxPontos) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+            chart.update();
+        }
+
+        onValue(ref(db, 'motor/temperatura'), (snapshot) => {
+            let val = snapshot.val() || 0;
+            document.getElementById('val-temp').innerText = parseFloat(val).toFixed(1);
+            atualizarGrafico(chartTemp, val);
+        });
+
+        onValue(ref(db, 'motor/corrente'), (snapshot) => {
+            let val = snapshot.val() || 0;
+            document.getElementById('val-corrente').innerText = parseFloat(val).toFixed(2);
+            atualizarGrafico(chartCorrente, val);
+        });
+
+        onValue(ref(db, 'motor/vibracao'), (snapshot) => {
+            let val = snapshot.val() || 0;
+            document.getElementById('val-vibracao').innerText = parseFloat(val).toFixed(2);
+            atualizarGrafico(chartVibracao, val);
+        });
+
+        let segundosAtivo = 0;
+        setInterval(() => {
+            segundosAtivo++;
+            let horas = Math.floor(segundosAtivo / 3600);
+            let minutos = Math.floor((segundosAtivo % 3600) / 60);
+            let segs = segundosAtivo % 60;
+            document.getElementById('uptime').innerText = String(horas).padStart(2, '0') + ":" + String(minutos).padStart(2, '0') + ":" + String(segs).padStart(2, '0');
+        }, 1000);
+
+        const inputNome = document.getElementById('nome-motor');
+        onValue(ref(db, 'configuracoes/nomeMotor'), (snapshot) => {
+            if(snapshot.exists()) { inputNome.value = snapshot.val(); }
+        });
+        inputNome.addEventListener('blur', () => {
+            set(ref(db, 'configuracoes/nomeMotor'), inputNome.value);
+        });
+    </script>
+</body>
+</html>
