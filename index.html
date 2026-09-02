@@ -12,12 +12,17 @@
         :root {
             --bg-color: #121212;
             --panel-bg: #1e1e2f;
+            --panel-secondary: #28283b;
             --text-main: #ffffff;
             --text-muted: #a0a0b5;
             --accent-blue: #00d2ff;
             --alert-red: #ff4757;
             --ok-green: #2ed573;
             --warn-yellow: #ffa502;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -28,15 +33,33 @@
             padding: 20px;
         }
 
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
             background-color: var(--panel-bg);
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
             border-left: 5px solid var(--accent-blue);
+        }
+
+        .motor-title {
+            min-width: 0;
+        }
+
+        .motor-title label {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
         .motor-title input {
@@ -47,6 +70,7 @@
             font-size: 28px;
             font-weight: bold;
             width: 400px;
+            max-width: 100%;
             outline: none;
         }
 
@@ -73,27 +97,48 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-top: 10px;
-        }
-
-        #btn-login {
-            background-color: var(--accent-blue);
-            color: #101018;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        #btn-login:hover {
-            filter: brightness(1.1);
         }
 
         #admin-info {
             font-size: 12px;
             color: var(--text-muted);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition:
+                filter 0.2s,
+                transform 0.2s;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: #101018;
+        }
+
+        .btn-secondary {
+            background-color: #3b3b52;
+            color: var(--text-main);
+        }
+
+        .btn-danger {
+            background-color: var(--alert-red);
+            color: white;
         }
 
         .dashboard-grid {
@@ -116,7 +161,7 @@
         }
 
         .card h2 {
-            margin: 0 0 10px 0;
+            margin: 0 0 10px;
             font-size: 20px;
             color: var(--text-muted);
         }
@@ -142,15 +187,168 @@
             color: var(--ok-green);
             font-weight: bold;
         }
+
+        /*
+         * JANELA DE CONFIGURAÇÕES
+         */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+
+        .modal.aberto {
+            display: flex;
+        }
+
+        .modal-conteudo {
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background-color: var(--panel-bg);
+            border: 1px solid #34344a;
+            border-radius: 14px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55);
+        }
+
+        .modal-cabecalho {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #34344a;
+        }
+
+        .modal-cabecalho h2 {
+            margin: 0;
+            color: var(--accent-blue);
+        }
+
+        .btn-fechar {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .modal-corpo {
+            padding: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .form-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-grupo.nome-completo {
+            grid-column: 1 / -1;
+        }
+
+        .form-grupo label {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+
+        .form-grupo input,
+        .form-grupo select {
+            width: 100%;
+            background-color: var(--panel-secondary);
+            color: var(--text-main);
+            border: 1px solid #41415a;
+            border-radius: 7px;
+            padding: 11px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-grupo input:focus,
+        .form-grupo select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        #mensagem-config {
+            display: block;
+            min-height: 20px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .modal-rodape {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #34344a;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .motor-title input {
+                width: 100%;
+                font-size: 22px;
+            }
+
+            .motor-info {
+                text-align: left;
+            }
+
+            .admin-controls {
+                justify-content: flex-start;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grupo.nome-completo {
+                grid-column: auto;
+            }
+
+            .modal-rodape {
+                flex-direction: column-reverse;
+            }
+
+            .modal-rodape .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-
+    <header class="header">
         <div class="motor-title">
-            <label style="display: block; font-size: 12px; color: #a0a0b5;">
+            <label for="nome-motor">
                 NOME DO EQUIPAMENTO:
             </label>
 
@@ -181,17 +379,30 @@
 
             <div class="admin-controls">
                 <span id="admin-info">Visitante</span>
-                <button id="btn-login">
+
+                <button
+                    type="button"
+                    id="btn-configuracoes"
+                    class="btn btn-secondary"
+                    hidden
+                >
+                    ⚙ Configurações
+                </button>
+
+                <button
+                    type="button"
+                    id="btn-login"
+                    class="btn btn-primary"
+                >
                     Entrar com Google
                 </button>
             </div>
         </div>
+    </header>
 
-    </div>
+    <main class="dashboard-grid">
 
-    <div class="dashboard-grid">
-
-        <div
+        <section
             class="card"
             style="border-top: 4px solid var(--alert-red);"
         >
@@ -209,9 +420,9 @@
             <div class="chart-container">
                 <canvas id="graficoTemp"></canvas>
             </div>
-        </div>
+        </section>
 
-        <div
+        <section
             class="card"
             style="border-top: 4px solid var(--ok-green);"
         >
@@ -229,9 +440,9 @@
             <div class="chart-container">
                 <canvas id="graficoCorrente"></canvas>
             </div>
-        </div>
+        </section>
 
-        <div
+        <section
             class="card"
             style="border-top: 4px solid var(--warn-yellow);"
         >
@@ -249,8 +460,135 @@
             <div class="chart-container">
                 <canvas id="graficoVibracao"></canvas>
             </div>
-        </div>
+        </section>
 
+    </main>
+
+    <!-- JANELA DE CONFIGURAÇÕES -->
+
+    <div
+        id="modal-config"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-modal"
+        aria-hidden="true"
+    >
+        <div class="modal-conteudo">
+            <div class="modal-cabecalho">
+                <h2 id="titulo-modal">
+                    Configurações do motor
+                </h2>
+
+                <button
+                    type="button"
+                    id="btn-fechar-modal"
+                    class="btn-fechar"
+                    aria-label="Fechar configurações"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="modal-corpo">
+                <div class="form-grid">
+
+                    <div class="form-grupo nome-completo">
+                        <label for="config-nome">
+                            Nome do equipamento
+                        </label>
+
+                        <input
+                            type="text"
+                            id="config-nome"
+                            maxlength="80"
+                        >
+                    </div>
+
+                    <div class="form-grupo">
+                        <label for="config-alimentacao">
+                            Tipo de alimentação
+                        </label>
+
+                        <select id="config-alimentacao">
+                            <option value="Monofásico">
+                                Monofásico
+                            </option>
+
+                            <option value="Bifásico">
+                                Bifásico
+                            </option>
+
+                            <option value="Trifásico">
+                                Trifásico
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label for="config-tensao">
+                            Tensão (V)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="config-tensao"
+                            min="1"
+                            max="10000"
+                            step="1"
+                        >
+                    </div>
+
+                    <div class="form-grupo">
+                        <label for="config-potencia">
+                            Potência (CV)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="config-potencia"
+                            min="0.01"
+                            max="10000"
+                            step="0.01"
+                        >
+                    </div>
+
+                    <div class="form-grupo">
+                        <label for="config-rotacao">
+                            Rotação (RPM)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="config-rotacao"
+                            min="1"
+                            max="100000"
+                            step="1"
+                        >
+                    </div>
+                </div>
+
+                <span id="mensagem-config"></span>
+            </div>
+
+            <div class="modal-rodape">
+                <button
+                    type="button"
+                    id="btn-cancelar-config"
+                    class="btn btn-secondary"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="button"
+                    id="btn-salvar-config"
+                    class="btn btn-primary"
+                >
+                    Salvar configurações
+                </button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -263,7 +601,8 @@
             ref,
             onValue,
             set,
-            get
+            get,
+            update
         } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         import {
@@ -273,10 +612,6 @@
             signOut,
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-
-        /*
-         * CONFIGURAÇÕES DO FIREBASE
-         */
 
         const firebaseConfig = {
             apiKey: "AIzaSyAc6EkUGTdk7V78rl74Gs66t2mLtH1-lzY",
@@ -302,10 +637,6 @@
         const CAMINHO_DADOS_ATUAIS =
             `${CAMINHO_MOTOR}/dadosAtuais`;
 
-        /*
-         * INICIALIZAÇÃO
-         */
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
@@ -313,12 +644,13 @@
         const googleProvider =
             new GoogleAuthProvider();
 
-        /*
-         * ELEMENTOS DO SITE
-         */
-
         const btnLogin =
             document.getElementById('btn-login');
+
+        const btnConfiguracoes =
+            document.getElementById(
+                'btn-configuracoes'
+            );
 
         const adminInfo =
             document.getElementById('admin-info');
@@ -336,13 +668,73 @@
                 'especificacoes-motor'
             );
 
+        const modalConfig =
+            document.getElementById(
+                'modal-config'
+            );
+
+        const btnFecharModal =
+            document.getElementById(
+                'btn-fechar-modal'
+            );
+
+        const btnCancelarConfig =
+            document.getElementById(
+                'btn-cancelar-config'
+            );
+
+        const btnSalvarConfig =
+            document.getElementById(
+                'btn-salvar-config'
+            );
+
+        const configNome =
+            document.getElementById(
+                'config-nome'
+            );
+
+        const configAlimentacao =
+            document.getElementById(
+                'config-alimentacao'
+            );
+
+        const configTensao =
+            document.getElementById(
+                'config-tensao'
+            );
+
+        const configPotencia =
+            document.getElementById(
+                'config-potencia'
+            );
+
+        const configRotacao =
+            document.getElementById(
+                'config-rotacao'
+            );
+
+        const mensagemConfig =
+            document.getElementById(
+                'mensagem-config'
+            );
+
+        let configuracoesAtuais = {
+            nomeMotor:
+                "Motor do rolo de água da unidade 1",
+
+            especificacoes: {
+                tipoAlimentacao: "Trifásico",
+                tensaoVolts: 220,
+                potenciaCV: 5,
+                rotacaoRPM: 1750
+            }
+        };
+
         /*
-         * CRIAÇÃO DA ESTRUTURA INICIAL
+         * CRIAÇÃO INICIAL DO MOTOR
          */
 
-        async function inicializarMotor(
-            usuario
-        ) {
+        async function inicializarMotor(usuario) {
             if (
                 !usuario ||
                 usuario.uid !== ADMIN_UID
@@ -355,27 +747,20 @@
                 CAMINHO_CONFIGURACOES
             );
 
-            const configuracoesSnapshot =
+            const snapshot =
                 await get(configuracoesRef);
 
-            /*
-             * Se o motor já estiver configurado,
-             * nenhuma alteração será realizada.
-             */
-            if (configuracoesSnapshot.exists()) {
+            if (snapshot.exists()) {
                 return;
             }
 
-            /*
-             * Procura o nome salvo na estrutura antiga
-             * para não perder a configuração existente.
-             */
-            const nomeAntigoSnapshot = await get(
-                ref(
-                    db,
-                    'configuracoes/nomeMotor'
-                )
-            );
+            const nomeAntigoSnapshot =
+                await get(
+                    ref(
+                        db,
+                        'configuracoes/nomeMotor'
+                    )
+                );
 
             let nomeInicial =
                 "Motor do rolo de água da unidade 1";
@@ -385,29 +770,25 @@
                     nomeAntigoSnapshot.val();
             }
 
-            const configuracoesIniciais = {
-                nomeMotor: nomeInicial,
-
-                especificacoes: {
-                    tipoAlimentacao: "Trifásico",
-                    tensaoVolts: 220,
-                    potenciaCV: 5,
-                    rotacaoRPM: 1750
-                }
-            };
-
             await set(
                 configuracoesRef,
-                configuracoesIniciais
-            );
+                {
+                    nomeMotor: nomeInicial,
 
-            console.log(
-                "Estrutura do motor criada com sucesso."
+                    especificacoes: {
+                        tipoAlimentacao:
+                            "Trifásico",
+
+                        tensaoVolts: 220,
+                        potenciaCV: 5,
+                        rotacaoRPM: 1750
+                    }
+                }
             );
         }
 
         /*
-         * LOGIN COM GOOGLE
+         * AUTENTICAÇÃO
          */
 
         btnLogin.addEventListener(
@@ -447,7 +828,9 @@
                         "Visitante";
 
                     inputNome.disabled = true;
+                    btnConfiguracoes.hidden = true;
 
+                    fecharModal();
                     return;
                 }
 
@@ -458,6 +841,7 @@
                         "Administrador";
 
                     inputNome.disabled = false;
+                    btnConfiguracoes.hidden = false;
 
                     try {
                         await inicializarMotor(
@@ -465,27 +849,24 @@
                         );
                     } catch (error) {
                         console.error(
-                            "Erro ao criar estrutura:",
+                            "Erro ao preparar o motor:",
                             error
                         );
-
-                        statusSalvamento.innerText =
-                            "Erro ao preparar o motor.";
-
-                        statusSalvamento.style.color =
-                            "var(--alert-red)";
                     }
                 } else {
                     adminInfo.innerText =
                         "Usuário sem permissão";
 
                     inputNome.disabled = true;
+                    btnConfiguracoes.hidden = true;
+
+                    fecharModal();
                 }
             }
         );
 
         /*
-         * CONFIGURAÇÕES DO MOTOR
+         * ACOMPANHAMENTO DAS CONFIGURAÇÕES
          */
 
         onValue(
@@ -498,16 +879,20 @@
                     return;
                 }
 
-                const configuracoes =
+                configuracoesAtuais =
                     snapshot.val();
 
-                if (configuracoes.nomeMotor) {
-                    inputNome.value =
-                        configuracoes.nomeMotor;
-                }
+                const nome =
+                    configuracoesAtuais
+                        .nomeMotor;
 
                 const especificacoes =
-                    configuracoes.especificacoes;
+                    configuracoesAtuais
+                        .especificacoes;
+
+                if (nome) {
+                    inputNome.value = nome;
+                }
 
                 if (especificacoes) {
                     const tipo =
@@ -535,12 +920,11 @@
         );
 
         /*
-         * SALVAMENTO DO NOME
+         * EDIÇÃO RÁPIDA DO NOME
          */
 
         async function salvarNomeMotor() {
-            const usuario =
-                auth.currentUser;
+            const usuario = auth.currentUser;
 
             if (
                 !usuario ||
@@ -580,8 +964,6 @@
                     novoNome
                 );
 
-                inputNome.value = novoNome;
-
                 statusSalvamento.innerText =
                     "Nome salvo ✓";
 
@@ -615,6 +997,249 @@
             (evento) => {
                 if (evento.key === 'Enter') {
                     inputNome.blur();
+                }
+            }
+        );
+
+        /*
+         * JANELA DE CONFIGURAÇÕES
+         */
+
+        function abrirModal() {
+            const especificacoes =
+                configuracoesAtuais
+                    .especificacoes || {};
+
+            configNome.value =
+                configuracoesAtuais
+                    .nomeMotor || "";
+
+            configAlimentacao.value =
+                especificacoes
+                    .tipoAlimentacao ||
+                "Trifásico";
+
+            configTensao.value =
+                especificacoes
+                    .tensaoVolts ?? 220;
+
+            configPotencia.value =
+                especificacoes
+                    .potenciaCV ?? 5;
+
+            configRotacao.value =
+                especificacoes
+                    .rotacaoRPM ?? 1750;
+
+            mensagemConfig.innerText = "";
+
+            modalConfig.classList.add(
+                'aberto'
+            );
+
+            modalConfig.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+
+            configNome.focus();
+        }
+
+        function fecharModal() {
+            modalConfig.classList.remove(
+                'aberto'
+            );
+
+            modalConfig.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            mensagemConfig.innerText = "";
+        }
+
+        btnConfiguracoes.addEventListener(
+            'click',
+            abrirModal
+        );
+
+        btnFecharModal.addEventListener(
+            'click',
+            fecharModal
+        );
+
+        btnCancelarConfig.addEventListener(
+            'click',
+            fecharModal
+        );
+
+        modalConfig.addEventListener(
+            'click',
+            (evento) => {
+                if (evento.target === modalConfig) {
+                    fecharModal();
+                }
+            }
+        );
+
+        document.addEventListener(
+            'keydown',
+            (evento) => {
+                if (
+                    evento.key === 'Escape' &&
+                    modalConfig.classList
+                        .contains('aberto')
+                ) {
+                    fecharModal();
+                }
+            }
+        );
+
+        btnSalvarConfig.addEventListener(
+            'click',
+            async () => {
+                const usuario =
+                    auth.currentUser;
+
+                if (
+                    !usuario ||
+                    usuario.uid !== ADMIN_UID
+                ) {
+                    mensagemConfig.innerText =
+                        "Você não possui permissão.";
+
+                    mensagemConfig.style.color =
+                        "var(--alert-red)";
+
+                    return;
+                }
+
+                const nome =
+                    configNome.value.trim();
+
+                const alimentacao =
+                    configAlimentacao.value;
+
+                const tensao =
+                    Number(configTensao.value);
+
+                const potencia =
+                    Number(configPotencia.value);
+
+                const rotacao =
+                    Number(configRotacao.value);
+
+                if (
+                    nome.length === 0 ||
+                    nome.length > 80
+                ) {
+                    mensagemConfig.innerText =
+                        "Informe um nome entre 1 e 80 caracteres.";
+
+                    mensagemConfig.style.color =
+                        "var(--alert-red)";
+
+                    return;
+                }
+
+                if (
+                    !Number.isFinite(tensao) ||
+                    tensao <= 0 ||
+                    tensao > 10000
+                ) {
+                    mensagemConfig.innerText =
+                        "Informe uma tensão válida.";
+
+                    mensagemConfig.style.color =
+                        "var(--alert-red)";
+
+                    return;
+                }
+
+                if (
+                    !Number.isFinite(potencia) ||
+                    potencia <= 0 ||
+                    potencia > 10000
+                ) {
+                    mensagemConfig.innerText =
+                        "Informe uma potência válida.";
+
+                    mensagemConfig.style.color =
+                        "var(--alert-red)";
+
+                    return;
+                }
+
+                if (
+                    !Number.isFinite(rotacao) ||
+                    rotacao <= 0 ||
+                    rotacao > 100000
+                ) {
+                    mensagemConfig.innerText =
+                        "Informe uma rotação válida.";
+
+                    mensagemConfig.style.color =
+                        "var(--alert-red)";
+
+                    return;
+                }
+
+                try {
+                    btnSalvarConfig.disabled = true;
+
+                    mensagemConfig.innerText =
+                        "Salvando configurações...";
+
+                    mensagemConfig.style.color =
+                        "var(--warn-yellow)";
+
+                    await update(
+                        ref(
+                            db,
+                            CAMINHO_CONFIGURACOES
+                        ),
+                        {
+                            nomeMotor: nome,
+
+                            especificacoes: {
+                                tipoAlimentacao:
+                                    alimentacao,
+
+                                tensaoVolts:
+                                    tensao,
+
+                                potenciaCV:
+                                    potencia,
+
+                                rotacaoRPM:
+                                    rotacao
+                            }
+                        }
+                    );
+
+                    mensagemConfig.innerText =
+                        "Configurações salvas ✓";
+
+                    mensagemConfig.style.color =
+                        "var(--ok-green)";
+
+                    setTimeout(() => {
+                        fecharModal();
+                    }, 700);
+                } catch (error) {
+                    console.error(
+                        "Erro ao salvar configurações:",
+                        error
+                    );
+
+                    mensagemConfig.innerText =
+                        "Erro ao salvar as configurações.";
+
+                    mensagemConfig.style.color =
+                        "var(--alert-red)";
+                } finally {
+                    btnSalvarConfig.disabled =
+                        false;
                 }
             }
         );
@@ -693,6 +1318,7 @@
                 new Date().toLocaleTimeString();
 
             chart.data.labels.push(agora);
+
             chart.data.datasets[0]
                 .data.push(valor);
 
@@ -701,6 +1327,7 @@
                 maxPontos
             ) {
                 chart.data.labels.shift();
+
                 chart.data.datasets[0]
                     .data.shift();
             }
@@ -709,7 +1336,7 @@
         }
 
         /*
-         * LEITURA DOS DADOS ATUAIS
+         * DADOS ATUAIS DOS SENSORES
          */
 
         function acompanharSensor(
