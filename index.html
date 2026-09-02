@@ -51,8 +51,16 @@
         }
 
         .motor-title input:disabled {
-            opacity: 0.8;
+            opacity: 0.65;
             cursor: not-allowed;
+        }
+
+        #status-salvamento {
+            display: block;
+            min-height: 18px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
         .motor-info {
@@ -147,8 +155,11 @@
                 type="text"
                 id="nome-motor"
                 value="Motor do rolo de água da unidade 1"
+                maxlength="80"
                 disabled
             >
+
+            <span id="status-salvamento"></span>
         </div>
 
         <div class="motor-info">
@@ -244,6 +255,8 @@
             appId: "1:964076129849:web:2e86e2b9ee2af7ef5cc7e8"
         };
 
+        const ADMIN_UID = "dWIQZl24FLgywSmYxboFIsU1Z6B3";
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
@@ -253,6 +266,9 @@
         const btnLogin = document.getElementById('btn-login');
         const adminInfo = document.getElementById('admin-info');
         const inputNome = document.getElementById('nome-motor');
+        const statusSalvamento = document.getElementById(
+            'status-salvamento'
+        );
 
         /*
          * LOGIN COM GOOGLE
@@ -263,10 +279,16 @@
                 if (auth.currentUser) {
                     await signOut(auth);
                 } else {
-                    await signInWithPopup(auth, googleProvider);
+                    await signInWithPopup(
+                        auth,
+                        googleProvider
+                    );
                 }
             } catch (error) {
-                console.error("Erro de autenticação:", error);
+                console.error(
+                    "Erro de autenticação:",
+                    error
+                );
 
                 alert(
                     "Não foi possível realizar o login.\n\n" +
@@ -276,20 +298,20 @@
         });
 
         onAuthStateChanged(auth, (usuario) => {
-            if (usuario) {
-                btnLogin.innerText = "Sair";
-                adminInfo.innerText = usuario.email;
-
-                /*
-                 * A edição permanecerá bloqueada até colocarmos
-                 * o UID do administrador nas regras do Firebase.
-                 */
-                inputNome.disabled = true;
-
-                console.log("UID do usuário:", usuario.uid);
-            } else {
+            if (!usuario) {
                 btnLogin.innerText = "Entrar com Google";
                 adminInfo.innerText = "Visitante";
+                inputNome.disabled = true;
+                return;
+            }
+
+            btnLogin.innerText = "Sair";
+
+            if (usuario.uid === ADMIN_UID) {
+                adminInfo.innerText = "Administrador";
+                inputNome.disabled = false;
+            } else {
+                adminInfo.innerText = "Usuário sem permissão";
                 inputNome.disabled = true;
             }
         });
@@ -301,42 +323,45 @@
         const maxPontos = 15;
 
         function criarGrafico(ctxId, corLinha) {
-            return new Chart(document.getElementById(ctxId), {
-                type: 'line',
+            return new Chart(
+                document.getElementById(ctxId),
+                {
+                    type: 'line',
 
-                data: {
-                    labels: [],
+                    data: {
+                        labels: [],
 
-                    datasets: [{
-                        data: [],
-                        borderColor: corLinha,
-                        borderWidth: 2,
-                        tension: 0.4,
-                        pointRadius: 0
-                    }]
-                },
-
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+                        datasets: [{
+                            data: [],
+                            borderColor: corLinha,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
                     },
 
-                    scales: {
-                        x: {
-                            display: false
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
                         },
 
-                        y: {
-                            beginAtZero: true
+                        scales: {
+                            x: {
+                                display: false
+                            },
+
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
                 }
-            });
+            );
         }
 
         const chartTemp = criarGrafico(
@@ -369,35 +394,47 @@
         }
 
         /*
-         * LEITURA DOS DADOS DO FIREBASE
+         * LEITURA DOS SENSORES
          */
 
-        onValue(ref(db, 'motor/temperatura'), (snapshot) => {
-            const val = snapshot.val() || 0;
+        onValue(
+            ref(db, 'motor/temperatura'),
+            (snapshot) => {
+                const val = snapshot.val() || 0;
 
-            document.getElementById('val-temp').innerText =
-                parseFloat(val).toFixed(1);
+                document.getElementById(
+                    'val-temp'
+                ).innerText = parseFloat(val).toFixed(1);
 
-            atualizarGrafico(chartTemp, val);
-        });
+                atualizarGrafico(chartTemp, val);
+            }
+        );
 
-        onValue(ref(db, 'motor/corrente'), (snapshot) => {
-            const val = snapshot.val() || 0;
+        onValue(
+            ref(db, 'motor/corrente'),
+            (snapshot) => {
+                const val = snapshot.val() || 0;
 
-            document.getElementById('val-corrente').innerText =
-                parseFloat(val).toFixed(2);
+                document.getElementById(
+                    'val-corrente'
+                ).innerText = parseFloat(val).toFixed(2);
 
-            atualizarGrafico(chartCorrente, val);
-        });
+                atualizarGrafico(chartCorrente, val);
+            }
+        );
 
-        onValue(ref(db, 'motor/vibracao'), (snapshot) => {
-            const val = snapshot.val() || 0;
+        onValue(
+            ref(db, 'motor/vibracao'),
+            (snapshot) => {
+                const val = snapshot.val() || 0;
 
-            document.getElementById('val-vibracao').innerText =
-                parseFloat(val).toFixed(2);
+                document.getElementById(
+                    'val-vibracao'
+                ).innerText = parseFloat(val).toFixed(2);
 
-            atualizarGrafico(chartVibracao, val);
-        });
+                atualizarGrafico(chartVibracao, val);
+            }
+        );
 
         /*
          * CONTADOR TEMPORÁRIO DE UPTIME
@@ -408,20 +445,26 @@
         setInterval(() => {
             segundosAtivo++;
 
-            const horas = Math.floor(segundosAtivo / 3600);
+            const horas = Math.floor(
+                segundosAtivo / 3600
+            );
+
             const minutos = Math.floor(
                 (segundosAtivo % 3600) / 60
             );
+
             const segundos = segundosAtivo % 60;
 
-            document.getElementById('uptime').innerText =
+            document.getElementById(
+                'uptime'
+            ).innerText =
                 String(horas).padStart(2, '0') + ":" +
                 String(minutos).padStart(2, '0') + ":" +
                 String(segundos).padStart(2, '0');
         }, 1000);
 
         /*
-         * NOME DO MOTOR
+         * LEITURA DO NOME DO MOTOR
          */
 
         onValue(
@@ -434,9 +477,84 @@
         );
 
         /*
-         * A gravação será liberada na próxima etapa,
-         * depois de configurarmos o UID do administrador.
+         * SALVAMENTO DO NOME DO MOTOR
          */
+
+        async function salvarNomeMotor() {
+            const usuario = auth.currentUser;
+
+            if (
+                !usuario ||
+                usuario.uid !== ADMIN_UID
+            ) {
+                return;
+            }
+
+            const novoNome = inputNome.value.trim();
+
+            if (
+                novoNome.length === 0 ||
+                novoNome.length > 80
+            ) {
+                statusSalvamento.innerText =
+                    "Digite um nome entre 1 e 80 caracteres.";
+
+                statusSalvamento.style.color =
+                    "var(--alert-red)";
+
+                return;
+            }
+
+            try {
+                statusSalvamento.innerText =
+                    "Salvando...";
+
+                statusSalvamento.style.color =
+                    "var(--warn-yellow)";
+
+                await set(
+                    ref(db, 'configuracoes/nomeMotor'),
+                    novoNome
+                );
+
+                inputNome.value = novoNome;
+
+                statusSalvamento.innerText =
+                    "Nome salvo ✓";
+
+                statusSalvamento.style.color =
+                    "var(--ok-green)";
+
+                setTimeout(() => {
+                    statusSalvamento.innerText = "";
+                }, 2000);
+            } catch (error) {
+                console.error(
+                    "Erro ao salvar o nome:",
+                    error
+                );
+
+                statusSalvamento.innerText =
+                    "Erro ao salvar o nome.";
+
+                statusSalvamento.style.color =
+                    "var(--alert-red)";
+            }
+        }
+
+        inputNome.addEventListener(
+            'blur',
+            salvarNomeMotor
+        );
+
+        inputNome.addEventListener(
+            'keydown',
+            (evento) => {
+                if (evento.key === 'Enter') {
+                    inputNome.blur();
+                }
+            }
+        );
     </script>
 
 </body>
