@@ -526,7 +526,8 @@
                 <div class="form-grid">
                     <div class="form-grupo nome-completo" id="grupo-config-id" hidden>
                         <label for="config-id">Identificador único (ex.: motor02)</label>
-                        <input id="config-id" maxlength="40" placeholder="motor02">
+                        <input id="config-id" maxlength="40" placeholder="motor02" aria-describedby="aviso-identificador">
+                        <span id="aviso-identificador" class="muted"></span>
                     </div>
 
                     <div class="form-grupo nome-completo">
@@ -809,7 +810,8 @@
             focoAnterior = document.activeElement; novoCadastro = novo; alvoModal = novo ? null : motorSelecionado;
             const config = novo ? {} : objeto(motores[alvoModal]?.configuracoes), e = objeto(config.especificacoes);
             $('titulo-modal').textContent = novo ? 'Cadastrar motor' : `Configurações · ${alvoModal}`;
-            $('grupo-config-id').hidden = !novo; $('config-id').value = '';
+            $('grupo-config-id').hidden = false; $('config-id').value = novo ? '' : alvoModal;
+            atualizarAvisoIdentificador();
             $('config-nome').value = config.nomeMotor || '';
             $('config-alimentacao').value = e.tipoAlimentacao || 'Trifásico';
             $('config-tensao').value = e.tensaoVolts ?? 220;
@@ -818,6 +820,28 @@
             $('mensagem-config').textContent = ''; $('modal-config').classList.add('aberto');
             $('modal-config').setAttribute('aria-hidden', 'false');
             (novo ? $('config-id') : $('config-nome')).focus();
+        }
+        function atualizarAvisoIdentificador() {
+            const alterando = !novoCadastro && $('config-id').value.trim() !== alvoModal;
+            $('aviso-identificador').textContent = novoCadastro ? 'Use letras, números, hífen ou sublinhado, sem espaços.' : alterando ?
+                `O endereço ${alvoModal} será substituído pelo novo identificador, levando as configurações, leituras e histórico. Se houver um ESP32 ou simulador enviando dados, pause o envio e atualize o identificador nele antes de retomar.` :
+                'Você pode editar este identificador. Os dados do motor serão transferidos para o novo endereço.';
+            $('btn-salvar-config').textContent = alterando ? 'Salvar e alterar identificador' : 'Salvar configurações';
+        }
+        $('config-id').addEventListener('input', atualizarAvisoIdentificador);
+        function prepararRenomeacao(atual, origem, destino, config) {
+            // null pode ser o cache inicial: confirma no servidor antes de tratar como ausente.
+            if (atual === null) return null;
+            if (!Object.prototype.hasOwnProperty.call(atual, origem)) throw new Error('MOTOR_AUSENTE');
+            if (Object.prototype.hasOwnProperty.call(atual, destino)) throw new Error('ID_EXISTENTE');
+            const motor = objeto(atual[origem]), anterior = objeto(motor.configuracoes);
+            const resultado = { ...atual, [destino]: {
+                ...motor, configuracoes: { ...anterior, ...config,
+                    especificacoes: { ...objeto(anterior.especificacoes), ...config.especificacoes }
+                }
+            }};
+            delete resultado[origem];
+            return resultado;
         }
         function fecharModal() {
             if (!$('modal-config').classList.contains('aberto')) return;
@@ -843,7 +867,8 @@
         $('btn-salvar-config').addEventListener('click', async () => {
             const msg = $('mensagem-config'); msg.style.color = 'var(--alert-red)';
             if (!admin()) { msg.textContent = 'Você não possui permissão.'; return; }
-            const criando = novoCadastro, id = criando ? $('config-id').value.trim() : alvoModal;
+            const criando = novoCadastro, origem = alvoModal, id = $('config-id').value.trim();
+            const renomeando = !criando && id !== origem;
             const nome = $('config-nome').value.trim();
             if (!idValido(id)) { msg.textContent = 'Use de 1 a 40 letras, números, hífen ou sublinhado no identificador.'; return; }
             if (!nome || nome.length > 80) { msg.textContent = 'Informe um nome entre 1 e 80 caracteres.'; return; }
@@ -859,8 +884,14 @@
             try {
                 if (criando) {
                     // Transação evita substituir as configurações de outro cadastro com o mesmo ID.
-                    const resultado = await runTransaction(ref(db, caminhoConfig(id)), atual => atual === null ? config : undefined, {applyLocally: false});
+                    const resultado = await runTransaction(ref(db, `motores/${id}`), atual => atual === null ? {configuracoes: config} : undefined, {applyLocally: false});
                     if (!resultado.committed) throw new Error('ID_EXISTENTE');
+                } else if (renomeando) {
+                    // Uma transação move o motor inteiro e verifica colisões na mesma operação.
+                    // Em caso de escrita concorrente, o Firebase repete com os dados atualizados.
+                    const resultado = await runTransaction(ref(db, 'motores'), atual =>
+                        prepararRenomeacao(atual, origem, id, config), {applyLocally: false});
+                    if (!resultado.committed || !resultado.snapshot.child(id).exists()) throw new Error('MOTOR_AUSENTE');
                 } else {
                     await update(ref(db, caminhoConfig(id)), {
                         nomeMotor: nome,
@@ -874,9 +905,13 @@
             } catch (error) {
                 msg.style.color = 'var(--alert-red)';
                 msg.textContent = error.message === 'ID_EXISTENTE' ? 'Esse identificador já está cadastrado. Use outro.' :
-                    'Não foi possível salvar. Verifique a conexão e se as regras do Firebase permitem editar este motor.';
+                    error.message === 'MOTOR_AUSENTE' ? 'O motor original não está mais disponível. Feche esta janela e confira a lista.' :
+                    'Não foi possível salvar. Verifique a conexão e publique as regras atualizadas do Firebase para permitir a alteração de identificador.';
             } finally { $('btn-salvar-config').disabled = false; }
-            if (sucesso) { fecharModal(); selecionarMotor(id); $('status-salvamento').textContent = 'Configurações salvas ✓'; }
+            if (sucesso) {
+                fecharModal(); selecionarMotor(id);
+                $('status-salvamento').textContent = renomeando ? `Identificador alterado: ${origem} → ${id} ✓` : 'Configurações salvas ✓';
+            }
         });
     </script>
 </body>
