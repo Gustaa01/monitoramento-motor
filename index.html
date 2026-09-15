@@ -6,7 +6,7 @@
 
     <title>Monitoramento Industrial - Motores</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
 
     <style>
         :root {
@@ -359,15 +359,33 @@
         button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
         .btn:disabled { opacity: .5; cursor: wait; }
         #status-motor { color: var(--text-muted); }
-    </style>
+    
+/* Painel SENAI v3 — temas e apresentacao */
+.motor-title input:disabled{opacity:1;cursor:default;border-bottom-color:transparent;}
+:root { color-scheme:dark; --bg-color:#0c1117; --panel-bg:#141c26; --panel-secondary:#1b2733; --text-main:#eef3f8; --text-muted:#9aaabd; --accent-blue:#59bbf8; --alert-red:#ff7272; --ok-green:#55d5a4; --warn-yellow:#f2b85e; --line:#293544; --shadow:0 14px 40px #0002; }
+:root[data-theme="light"] {color-scheme:light;--bg-color:#eef2f6;--panel-bg:#fff;--panel-secondary:#e9eff5;--text-main:#162434;--text-muted:#53677c;--accent-blue:#086aa9;--alert-red:#c3323e;--ok-green:#18764f;--warn-yellow:#976000;--line:#d1dce7;--shadow:0 10px 24px #18374d08;}
+body {font-family:Inter,Segoe UI,Arial,sans-serif;padding:28px 38px 20px;max-width:1600px;color:var(--text-main);background:var(--bg-color);line-height:1.45;}
+.topbar {display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:32px;}
+.brand {display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;letter-spacing:.08em;}.brand-mark {display:grid;place-items:center;width:38px;height:38px;background:var(--accent-blue);color:var(--bg-color);border-radius:9px;font-size:22px;}.brand small {display:block;font-size:10px;color:var(--text-muted);letter-spacing:.16em;font-weight:500;margin-top:2px;}
+.toolbar {display:flex;gap:8px;flex-wrap:wrap;}button,.btn {font-family:inherit;cursor:pointer;}.toolbar button,.btn {border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--panel-bg);color:var(--text-main);font-weight:600;font-size:12px;}.btn-primary,#demo-toggle[aria-pressed="true"] {background:var(--accent-blue);color:var(--bg-color);border-color:var(--accent-blue);}
+.eyebrow {font-size:10px;letter-spacing:.2em;font-weight:700;color:var(--accent-blue);margin:0 0 9px;}h1 {font-size:clamp(26px,3vw,38px);font-weight:650;letter-spacing:-1px;margin:0 0 6px;}.muted {color:var(--text-muted);font-size:12px;}.overview {margin-bottom:22px;}.overview-heading {align-items:flex-start;}#conexao {margin:18px 0 5px;}#aviso-lista {margin:5px 0 12px;}.open-id {font-size:12px;}.open-id input {background:var(--panel-bg);color:var(--text-main);border:1px solid var(--line);}.motor-list {grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px;}.motor-tile {background:var(--panel-bg);color:var(--text-main);padding:13px 16px;border:1px solid var(--line);border-radius:9px;}.motor-tile[aria-pressed="true"]{border-color:var(--accent-blue);background:var(--panel-secondary);}.motor-tile strong {font-size:14px;margin:4px 0;}.tile-values {font-size:11px;color:var(--text-muted);}
+.header {background:var(--panel-bg);border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:var(--shadow);margin-bottom:20px;gap:22px;}.motor-title label{font-size:10px;letter-spacing:.14em;color:var(--text-muted);}.motor-title input {color:var(--text-main);font-size:22px;width:100%;min-width:0;background:transparent;}.motor-title{flex:1;min-width:0;}.motor-info {font-size:12px;color:var(--text-muted);line-height:1.9;}#status-motor {color:var(--accent-blue);font-weight:700;}#uptime{font-variant-numeric:tabular-nums;color:var(--text-main);}#mensagem-painel {margin:12px 0;}.admin-controls{margin-top:12px;}
+.section-label{display:flex;justify-content:space-between;align-items:center;margin:26px 0 14px;gap:12px;}.section-label h2{font-size:15px;margin:0;letter-spacing:-.2px;}.section-label span{font-size:11px;color:var(--text-muted);}.dashboard-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;}.card {position:relative;align-items:stretch;background:var(--panel-bg);border:1px solid var(--line)!important;border-radius:12px;padding:20px;box-shadow:var(--shadow);overflow:hidden;}.card:before{content:'';position:absolute;top:0;left:20px;width:30px;height:3px;background:var(--sensor-color,var(--accent-blue));}.card:nth-child(1){--sensor-color:#f2b85e;}.card:nth-child(2){--sensor-color:#59bbf8;}.card:nth-child(3){--sensor-color:#aa95ef;}.card:nth-child(4){--sensor-color:#55d5a4;}.card h2{font-size:12px;text-align:left;font-weight:500;color:var(--text-muted);margin:4px 0 24px;}.valor-display{font-size:40px;font-weight:600;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;}.unidade{font-size:12px;color:var(--text-muted);margin-left:4px;}.chart-container{height:110px;margin-top:24px;position:relative;}.chart-container:after{content:'AGORA';position:absolute;bottom:-12px;right:0;font-size:8px;letter-spacing:.1em;color:var(--text-muted);}.demo-chart{position:absolute;inset:0;width:100%;height:100%;background:var(--panel-bg);}.card-note{font-size:10px;color:var(--text-muted);margin:25px 0 0;border-top:1px solid var(--line);padding-top:11px;}
+.demo-strip {display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--warn-yellow);border-radius:9px;padding:12px 16px;margin-bottom:22px;background:var(--panel-secondary);color:var(--text-main);font-size:12px;}.demo-strip strong{color:var(--warn-yellow);}.demo-strip select{border:1px solid var(--line);background:var(--panel-bg);color:var(--text-main);border-radius:6px;padding:7px;}.foot {display:flex;justify-content:space-between;gap:15px;color:var(--text-muted);border-top:1px solid var(--line);padding-top:18px;margin-top:34px;font-size:10px;letter-spacing:.025em;}.modal-conteudo{background:var(--panel-bg);border:1px solid var(--line);}.modal-cabecalho,.modal-rodape{border-color:var(--line);}.form-grupo input,.form-grupo select{background:var(--panel-secondary);color:var(--text-main);border-color:var(--line);}body.presentation .open-id,body.presentation #lista-motores,body.presentation #aviso-lista,body.presentation .admin-controls,body.presentation #btn-novo{display:none!important;}body.presentation .card{min-height:300px;}body.presentation .valor-display{font-size:50px;}
+@media(max-width:1100px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body{padding:22px;}}@media(max-width:600px){body{padding:16px;}.topbar{align-items:flex-start;flex-direction:column;margin-bottom:24px;}.toolbar{width:100%;}.toolbar button{flex:1;padding:10px 6px;font-size:11px;}.header{padding:17px;}.dashboard-grid{gap:10px;}.card{padding:15px;}.card h2{font-size:11px;margin-bottom:16px;}.valor-display{font-size:32px;}.unidade{font-size:10px;}.chart-container{height:85px;}.demo-strip{align-items:flex-start;flex-direction:column;}.foot{flex-direction:column;gap:4px;}.section-label{align-items:flex-start;flex-direction:column;}body.presentation .valor-display{font-size:36px;}.motor-title input{font-size:19px;}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;}}
+
+</style>
 </head>
 
 <body>
+<nav class="topbar" aria-label="Controles do painel"><div class="brand"><span class="brand-mark" aria-hidden="true">≋</span><div>MOTOR<span style="color:var(--accent-blue)"> / </span>MONITOR<small>SENAI · MONITORAMENTO INDUSTRIAL</small></div></div><div class="toolbar"><button id="theme-toggle" type="button">Tema claro</button><button id="demo-toggle" type="button" aria-pressed="false">Demonstração</button><button id="present-toggle" type="button" aria-pressed="false">Apresentar</button></div></nav>
+<div id="demo-strip" class="demo-strip" hidden role="status"><div><strong>DADOS SIMULADOS</strong> · Demonstração local. Nenhuma leitura é enviada ao banco.</div><label>Cenário <select id="demo-scenario"><option value="normal">Em funcionamento</option><option value="alerta">Temperatura elevada</option><option value="parado">Motor parado</option></select></label></div>
 
     <section class="overview" aria-labelledby="titulo-visao">
         <div class="overview-heading"><div><p class="eyebrow">SENAI · MONITORAMENTO INDUSTRIAL</p>
-        <h1 id="titulo-visao">Visão geral dos motores</h1>
-        <p class="muted">Escolha um equipamento para acompanhar suas leituras.</p></div>
+        <h1 id="titulo-visao">Cada sinal conta.</h1>
+        <p class="muted">Acompanhe a condição do motor, da temperatura à rotação.</p></div>
         <button class="btn btn-primary" id="btn-novo" hidden>Cadastrar motor</button></div>
         <p id="conexao" class="muted" role="status">Conectando ao banco de dados…</p>
         <p id="aviso-lista" class="muted" role="status"></p>
@@ -399,7 +417,7 @@
             <span id="status-motor">Não informado</span>
             <br>
 
-            <strong>Tempo de operação informado:</strong>
+            <strong>Operação acumulada:</strong>
             <span id="uptime">Não informado</span>
             <br>
 
@@ -431,7 +449,7 @@
         </div>
     </header>
 
-    <p class="muted">Gráficos das leituras recebidas nesta sessão. O histórico é limpo ao trocar de motor.</p>
+    <div class="section-label"><h2>Telemetria do equipamento</h2><span id="reading-age">Aguardando primeira leitura</span></div>
     <main class="dashboard-grid">
 
         <section
@@ -478,7 +496,7 @@
             class="card"
             style="border-top: 4px solid var(--warn-yellow);"
         >
-            <h2>Vibração (Pico)</h2>
+            <h2>Vibração · aceleração RMS</h2>
 
             <div>
                 <span
@@ -486,7 +504,7 @@
                     id="val-vibracao"
                 >--</span>
 
-                <span class="unidade">mm/s</span>
+                <span class="unidade">m/s²</span>
             </div>
 
             <div class="chart-container">
@@ -494,7 +512,9 @@
             </div>
         </section>
 
+        <section class="card"><h2>Rotação medida</h2><div><span class="valor-display" id="val-rpm">--</span><span class="unidade">RPM</span></div><div class="chart-container"><canvas id="graficoRPM"></canvas></div></section>
     </main>
+    <footer class="foot"><span>PROJETO SENAI / Monitoramento de condição</span><span>Gráficos desta sessão · Indicadores sujeitos à calibração dos sensores</span></footer>
 
     <!-- JANELA DE CONFIGURAÇÕES -->
 
@@ -629,10 +649,43 @@
     </div>
 
 
+
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+const fmt=(v,n=1)=>typeof v==='number'&&Number.isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:n,maximumFractionDigits:n}):'--';
+const duration=v=>{if(typeof v!=='number'||!Number.isFinite(v)||v<0)return 'Não informado';const sec=Math.floor(v);return `${Math.floor(sec/3600)}h ${String(Math.floor(sec%3600/60)).padStart(2,'0')}min`;};
+let theme='dark';try{theme=localStorage.getItem('motor-theme')||'dark';}catch{}
+function applyTheme(){document.documentElement.dataset.theme=theme;$('theme-toggle').textContent=theme==='dark'?'Tema claro':'Tema escuro';$('theme-toggle').setAttribute('aria-label',`Alternar para tema ${theme==='dark'?'claro':'escuro'}`);if(window.Chart)for(const chart of Object.values(Chart.instances)){chart.options.scales.y.ticks.color=getComputedStyle(document.body).getPropertyValue('--text-muted');chart.options.scales.y.grid.color=getComputedStyle(document.body).getPropertyValue('--line');chart.update('none');}}
+applyTheme();$('theme-toggle').onclick=()=>{theme=theme==='dark'?'light':'dark';try{localStorage.setItem('motor-theme',theme);}catch{}applyTheme();};
+$('present-toggle').onclick=()=>{const on=document.body.classList.toggle('presentation');$('present-toggle').setAttribute('aria-pressed',on);$('present-toggle').textContent=on?'Sair da apresentação':'Apresentar';};
+window.renderMotorStatus=(status,data)=>{const stamp=typeof data.timestamp==='number'?data.timestamp:status.ultimaAtualizacao;const age=typeof stamp==='number'?Date.now()-stamp:Infinity;const fresh=age>=-5000&&age<=20000;$('reading-age').textContent=!Number.isFinite(age)?'Aguardando primeira leitura':fresh?'Última leitura · '+Math.max(0,Math.floor(age/1000))+' s atrás':'Sem leitura recente · '+new Date(stamp).toLocaleTimeString('pt-BR');$('status-motor').textContent=!fresh?'Sem dados recentes':status.emOperacao===true?'Em funcionamento':status.emOperacao===false?'Parado':'Operação não informada';$('status-motor').style.color=fresh&&status.emOperacao===true?'var(--ok-green)':'var(--text-muted)';$('uptime').textContent=duration(status.tempoOperacaoTotalSegundos);};
+const cards=[['val-temp','Temperatura da superfície'],['val-corrente','Corrente alternada · RMS'],['val-vibracao','Aceleração vetorial · RMS'],['val-rpm','Rotação medida pelo sensor Hall']];for(const [id,note]of cards){const el=document.createElement('p');el.className='card-note';el.textContent=note;$(id).closest('.card').append(el);}
+let tick=0;let demoStart=Date.now();const traces=[[],[],[],[]];
+const baseIds=['val-temp','val-corrente','val-vibracao','val-rpm'];
+function drawDemo(){if(!window.demoActive)return;tick++;const stopped=$('demo-scenario').value==='parado',hot=$('demo-scenario').value==='alerta';const a=Math.sin(tick*.37),b=Math.sin(tick*.9);const vals=stopped?[29+a*.1,0,0.02,0]:[hot?83+a*.7:46.5+a*.4,4.2+b*.12,.64+a*.06,1748+Math.round(b*5)];
+baseIds.forEach((id,i)=>{ $(id).textContent=fmt(vals[i],i===3?0:i===0?1:2);traces[i].push(vals[i]);if(traces[i].length>36)traces[i].shift();const container=$(id).closest('.card').querySelector('.chart-container');let svg=container.querySelector('.demo-chart');if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('demo-chart');svg.setAttribute('viewBox','0 0 300 100');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');container.append(svg);}const arr=traces[i];const lo=Math.min(...arr),hi=Math.max(...arr);const span=Math.max(hi-lo,[8,2,.6,150][i]);const mid=(hi+lo)/2;const points=arr.map((v,j)=>`${j*300/Math.max(1,arr.length-1)},${50-(v-mid)*70/span}`).join(' ');svg.innerHTML=`<path d="M0 25H300M0 50H300M0 75H300" stroke="var(--line)" stroke-width=".6" fill="none"/><polygon points="0,100 ${points} 300,100" fill="var(--sensor-color)" opacity=".08"/><polyline points="${points}" stroke="var(--sensor-color)" stroke-width="2" fill="none"/>`;});
+$('status-motor').textContent=stopped?'Parado · simulado':hot?'Temperatura elevada · simulado':'Em funcionamento · simulado';$('status-motor').style.color=hot?'var(--warn-yellow)':'var(--ok-green)';$('uptime').textContent=duration(13500+(stopped?0:(Date.now()-demoStart)/1000));$('reading-age').textContent='Simulação local · atualização a cada 2 s';$('mensagem-painel').textContent=hot?'Cenário ilustrativo: temperatura elevada. Não representa um diagnóstico real.':'Modo de demonstração · valores fictícios para apresentação.';
+}
+function setDemo(on){window.demoActive=on;$('demo-toggle').setAttribute('aria-pressed',on);$('demo-toggle').textContent=on?'Ver dados reais':'Demonstração';$('demo-strip').hidden=!on;$('lista-motores').hidden=on;$('abrir-id').hidden=on;$('aviso-lista').hidden=on;$('btn-novo').hidden=true;$('btn-configuracoes').hidden=true;$('modal-config').classList.remove('aberto');$('modal-config').setAttribute('aria-hidden','true');$('nome-motor').disabled=true;document.querySelector('.admin-controls').hidden=on;
+if(on){$('nome-motor').value='Motor de indução · bancada SENAI';$('especificacoes-motor').textContent='Exemplo ilustrativo · Trifásico 220 V | 5 CV | 1750 RPM nominal';$('conexao').textContent='Apresentação independente da placa e da conexão com o banco.';for(const t of traces)t.length=0;for(let i=0;i<35;i++)drawDemo();}
+else{document.querySelectorAll('.demo-chart').forEach(e=>e.remove());baseIds.forEach(id=>$(id).textContent='--');$('nome-motor').value='Aguardando equipamento';$('especificacoes-motor').textContent='Não informado';$('conexao').textContent='Conectando aos dados reais…';$('mensagem-painel').textContent='Carregando equipamento…';window.renderMotorStatus({},{});if(window.resumeLive)window.resumeLive();if(window.startLive)window.startLive();}}
+$('demo-toggle').onclick=()=>setDemo(!window.demoActive);$('demo-scenario').onchange=()=>{traces.forEach(t=>t.length=0);for(let i=0;i<35;i++)drawDemo();};
+// Arquivo baixado abre como demonstracao. Em hospedagem, dados reais por padrao.
+setDemo(location.protocol==='file:'||new URLSearchParams(location.search).get('demo')==='1');
+setInterval(drawDemo,2000);
+})();
+</script>
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    async function startLive() {
+      if (window.liveStarted) return;
+      window.liveStarted=true;
+      try {
+        const [{initializeApp}, {getDatabase,ref,onValue,update,runTransaction}, {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js'),
+          import('https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js')]);
         const firebaseConfig = {
             apiKey: "AIzaSyAc6EkUGTdk7V78rl74Gs66t2mLtH1-lzY",
             authDomain: "tcc-motor-senai.firebaseapp.com",
@@ -645,7 +698,7 @@
         const ADMIN_UID = "dWIQZl24FLgywSmYxboFIsU1Z6B3";
         const app = initializeApp(firebaseConfig), db = getDatabase(app), auth = getAuth(app);
         const $ = id => document.getElementById(id);
-        const admin = () => auth.currentUser?.uid === ADMIN_UID;
+        const admin = () => !window.demoActive && auth.currentUser?.uid === ADMIN_UID;
         const objeto = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
         const numero = value => typeof value === 'number' && Number.isFinite(value) ? value :
             typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
@@ -659,7 +712,8 @@
         const sensores = [
             { campo: 'temperatura', elemento: 'val-temp', canvas: 'graficoTemp', casas: 1, cor: '#ff4757' },
             { campo: 'corrente', elemento: 'val-corrente', canvas: 'graficoCorrente', casas: 2, cor: '#2ed573' },
-            { campo: 'vibracao', elemento: 'val-vibracao', canvas: 'graficoVibracao', casas: 2, cor: '#ffa502' }
+            { campo: 'vibracaoAceleracaoRms', elemento: 'val-vibracao', canvas: 'graficoVibracao', casas: 2, cor: '#aa95ef' },
+            { campo: 'rotacaoRPM', elemento: 'val-rpm', canvas: 'graficoRPM', casas: 0, cor: '#55d5a4' }
         ];
         for (const s of sensores) {
             s.chart = typeof Chart === 'undefined' ? null : new Chart($(s.canvas), {
@@ -668,7 +722,7 @@
                     scales: { x: { display: false }, y: { beginAtZero: true } } }
             });
         }
-        if (typeof Chart === 'undefined') $('mensagem-painel').textContent = 'Não foi possível carregar os gráficos. As leituras continuam disponíveis.';
+        if (!window.demoActive && typeof Chart === 'undefined') $('mensagem-painel').textContent = 'Não foi possível carregar os gráficos. As leituras continuam disponíveis.';
 
         function limparGraficos() {
             assinaturaAnterior = null;
@@ -682,6 +736,7 @@
             $('btn-novo').hidden = !admin();
         }
         function renderizarLista() {
+            if(window.demoActive) return;
             const lista = $('lista-motores');
             const ids = Object.keys(motores).sort((a,b) => a.localeCompare(b, 'pt-BR', {numeric: true}));
             // Reutiliza os botões para preservar o foco durante atualizações em tempo real.
@@ -699,22 +754,22 @@
                 tile.setAttribute('aria-pressed', String(id === motorSelecionado));
                 tile.children[0].textContent = id;
                 tile.children[1].textContent = config.nomeMotor || id;
-                tile.children[2].textContent = `${valor(dados.temperatura,1)} °C  ·  ${valor(dados.corrente,2)} A  ·  ${valor(dados.vibracao,2)} mm/s`;
+                tile.children[2].textContent = `${valor(dados.temperatura,1)} °C  ·  ${valor(dados.corrente,2)} A  ·  ${valor(dados.vibracaoAceleracaoRms,2)} m/s²`;
             }
             if (listaCompleta) $('aviso-lista').textContent = ids.length ? `${ids.length} motor(es) cadastrado(s).` : 'Nenhum motor cadastrado. Entre como administrador para cadastrar.';
         }
         function renderizarPainel() {
+            if(window.demoActive) return;
             const motor = objeto(motores[motorSelecionado]), config = objeto(motor.configuracoes), dados = objeto(motor.dadosAtuais);
             if (document.activeElement !== $('nome-motor')) $('nome-motor').value = config.nomeMotor || motorSelecionado;
             const e = objeto(config.especificacoes);
             $('especificacoes-motor').textContent = `${e.tipoAlimentacao ?? '--'} ${e.tensaoVolts ?? '--'}V | ${e.potenciaCV ?? '--'} CV | ${e.rotacaoRPM ?? '--'} RPM`;
             // Não inferir motor ligado a partir de conexão Firebase ou página aberta.
-            $('status-motor').textContent = 'Não informado';
-            $('uptime').textContent = 'Não informado';
+            window.renderMotorStatus(objeto(motor.status), dados);
             const existe = Boolean(motores[motorSelecionado]);
             $('mensagem-painel').textContent = !existe ? `${motorSelecionado}: sem cadastro ou leitura disponível.` :
                 `Equipamento selecionado: ${motorSelecionado}. ` + (sensores.some(s => numero(dados[s.campo]) !== null) ? 'Exibindo as últimas leituras armazenadas.' : 'Aguardando leituras dos sensores.');
-            if (typeof Chart === 'undefined') $('mensagem-painel').textContent += ' Gráficos indisponíveis; recarregue a página.';
+            if (!window.demoActive && typeof Chart === 'undefined') $('mensagem-painel').textContent += ' Gráficos indisponíveis; recarregue a página.';
             const assinatura = JSON.stringify(dados);
             const mudou = assinatura !== assinaturaAnterior;
             for (const s of sensores) {
@@ -730,7 +785,9 @@
             assinaturaAnterior = assinatura;
             atualizarPermissoes();
         }
-        function renderizar() { renderizarLista(); renderizarPainel(); }
+        function renderizar() { if(window.demoActive) return; renderizarLista(); renderizarPainel(); }
+        window.resumeLive = () => {limparGraficos(); renderizar();};
+        setInterval(() => {if(!window.demoActive) window.renderMotorStatus(objeto(motores[motorSelecionado]?.status), objeto(motores[motorSelecionado]?.dadosAtuais));},1000);
         function selecionarMotor(id) {
             if (!idValido(id)) return;
             if (motorSelecionado !== id) { fecharModal(); motorSelecionado = id; limparGraficos(); $('status-salvamento').textContent = ''; }
@@ -742,7 +799,7 @@
             const cancelamentos = []; escutasIndividuais.set(id, cancelamentos);
             const geracao = versaoEscuta;
             // Mantém compatibilidade com regras que só permitem ler os filhos do motor01.
-            for (const filho of ['configuracoes', 'dadosAtuais']) {
+            for (const filho of ['configuracoes', 'dadosAtuais', 'status']) {
                 cancelamentos.push(onValue(ref(db, `motores/${id}/${filho}`), snapshot => {
                     if (geracao !== versaoEscuta) return;
                     if (snapshot.exists()) { motores[id] ??= {}; motores[id][filho] = snapshot.val(); }
@@ -775,8 +832,9 @@
             });
         }
         onValue(ref(db, '.info/connected'), snapshot => {
+            if(window.demoActive) return;
             $('conexao').textContent = snapshot.val() === true ? 'Conectado ao banco de dados · isso não confirma que os motores estão ligados.' : 'Sem conexão com o banco · as leituras podem estar desatualizadas.';
-        }, () => { $('conexao').textContent = 'Não foi possível verificar a conexão.'; });
+        }, () => { if(!window.demoActive) $('conexao').textContent = 'Não foi possível verificar a conexão.'; });
         $('abrir-id').addEventListener('submit', evento => {
             evento.preventDefault(); const id = $('motor-id').value.trim();
             if (idValido(id)) selecionarMotor(id);
@@ -913,6 +971,13 @@
                 $('status-salvamento').textContent = renomeando ? `Identificador alterado: ${origem} → ${id} ✓` : 'Configurações salvas ✓';
             }
         });
+      } catch(error) {
+        window.liveStarted=false;
+        if(!window.demoActive) document.getElementById('conexao').textContent='Sem acesso ao serviço de dados. Verifique a internet ou use a demonstração.';
+      }
+    }
+    window.startLive=startLive;
+    if(!window.demoActive) startLive();
     </script>
 </body>
 </html>
