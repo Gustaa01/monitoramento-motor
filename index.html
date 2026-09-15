@@ -375,6 +375,22 @@ body {font-family:Inter,Segoe UI,Arial,sans-serif;padding:28px 38px 20px;max-wid
 @media(max-width:1100px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body{padding:22px;}}@media(max-width:600px){body{padding:16px;}.topbar{align-items:flex-start;flex-direction:column;margin-bottom:24px;}.toolbar{width:100%;}.toolbar button{flex:1;padding:10px 6px;font-size:11px;}.header{padding:17px;}.dashboard-grid{gap:10px;}.card{padding:15px;}.card h2{font-size:11px;margin-bottom:16px;}.valor-display{font-size:32px;}.unidade{font-size:10px;}.chart-container{height:85px;}.demo-strip{align-items:flex-start;flex-direction:column;}.foot{flex-direction:column;gap:4px;}.section-label{align-items:flex-start;flex-direction:column;}body.presentation .valor-display{font-size:36px;}.motor-title input{font-size:19px;}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;}}
 
+
+.danger-zone{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;}
+.danger-zone summary{color:var(--alert-red);font-weight:650;cursor:pointer;}
+.danger-zone p{color:var(--text-muted);line-height:1.6;}
+.danger-zone input{display:block;width:100%;margin:8px 0 12px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel-secondary);color:var(--text-main);}
+.danger-zone .btn-danger{background:var(--alert-red);color:var(--bg-color);border-color:var(--alert-red);}
+
+/* Comportamento de painel: selecao apenas nos campos de entrada. */
+body { cursor: default; -webkit-user-select: none; user-select: none; }
+input:not(:disabled), textarea:not(:disabled), [contenteditable="true"] {
+    cursor: text; -webkit-user-select: text; user-select: text;
+}
+button:not(:disabled), .btn:not(:disabled), select:not(:disabled), summary, a[href] { cursor: pointer; }
+button:disabled, .btn:disabled { cursor: not-allowed; }
+input:disabled, textarea:disabled { cursor: default; -webkit-user-select: none; user-select: none; }
+
 </style>
 </head>
 
@@ -625,7 +641,14 @@ body {font-family:Inter,Segoe UI,Arial,sans-serif;padding:28px 38px 20px;max-wid
                     </div>
                 </div>
 
-                <span id="mensagem-config"></span>
+                <span id="mensagem-config" role="status" aria-live="polite"></span>
+                <details id="zona-excluir" class="danger-zone" hidden>
+                    <summary>Excluir este motor</summary>
+                    <p>Esta ação apaga o cadastro, as leituras e todo o histórico deste motor. Não pode ser desfeita pelo painel. Pause o envio do ESP32 antes de excluir.</p>
+                    <label for="confirmar-exclusao">Digite <strong id="id-exclusao"></strong> para confirmar:</label>
+                    <input id="confirmar-exclusao" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Identificador exato do motor">
+                    <button type="button" id="btn-excluir-motor" class="btn btn-danger" disabled>Excluir motor permanentemente</button>
+                </details>
             </div>
 
             <div class="modal-rodape">
@@ -734,6 +757,8 @@ setInterval(drawDemo,2000);
             $('nome-motor').disabled = !admin() || !motores[motorSelecionado];
             $('btn-configuracoes').hidden = !admin() || !motores[motorSelecionado];
             $('btn-novo').hidden = !admin();
+            $('zona-excluir').hidden = !admin() || novoCadastro;
+            atualizarBotaoExcluir();
         }
         function renderizarLista() {
             if(window.demoActive) return;
@@ -868,6 +893,11 @@ setInterval(drawDemo,2000);
             focoAnterior = document.activeElement; novoCadastro = novo; alvoModal = novo ? null : motorSelecionado;
             const config = novo ? {} : objeto(motores[alvoModal]?.configuracoes), e = objeto(config.especificacoes);
             $('titulo-modal').textContent = novo ? 'Cadastrar motor' : `Configurações · ${alvoModal}`;
+            $('zona-excluir').hidden = novo;
+            $('zona-excluir').open = false;
+            $('confirmar-exclusao').value = '';
+            $('id-exclusao').textContent = alvoModal || '';
+            atualizarBotaoExcluir();
             $('grupo-config-id').hidden = false; $('config-id').value = novo ? '' : alvoModal;
             atualizarAvisoIdentificador();
             $('config-nome').value = config.nomeMotor || '';
@@ -916,15 +946,65 @@ setInterval(drawDemo,2000);
             if (!$('modal-config').classList.contains('aberto')) return;
             if (e.key === 'Escape') fecharModal();
             if (e.key === 'Tab') {
-                const elementos = Array.from($('modal-config').querySelectorAll('button, input, select')).filter(el => !el.disabled && !el.closest('[hidden]'));
+                const elementos = Array.from($('modal-config').querySelectorAll('button, input, select')).filter(el => !el.disabled && !el.closest('[hidden]') && (!el.closest('details') || el.closest('details').open));
                 const primeiro = elementos[0], ultimo = elementos.at(-1);
                 if (e.shiftKey && document.activeElement === primeiro) { e.preventDefault(); ultimo.focus(); }
                 else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primeiro.focus(); }
             }
         });
+
+        function atualizarBotaoExcluir() {
+            $('btn-excluir-motor').disabled = !admin() || novoCadastro || !alvoModal ||
+                $('btn-salvar-config').disabled || $('confirmar-exclusao').value !== alvoModal;
+        }
+        $('confirmar-exclusao').addEventListener('input', atualizarBotaoExcluir);
+        async function excluirMotor() {
+            const msg = $('mensagem-config');
+            // Autorizacao real tambem depende das regras do Firebase.
+            if (!admin() || novoCadastro || !alvoModal || $('btn-salvar-config').disabled) return;
+            const id = alvoModal; // ID original do cadastro, mesmo que o campo de edicao mude.
+            if (!idValido(id) || $('confirmar-exclusao').value !== id) {
+                msg.style.color = 'var(--alert-red)';
+                msg.textContent = 'Digite exatamente o identificador do motor para excluir.';
+                return;
+            }
+            $('btn-salvar-config').disabled = true;
+            $('btn-excluir-motor').disabled = true;
+            $('confirmar-exclusao').disabled = true;
+            $('demo-toggle').disabled = true;
+            msg.style.color = 'var(--text-muted)'; msg.textContent = 'Excluindo motor…';
+            let sucesso = false;
+            try {
+                const resultado = await runTransaction(ref(db, `motores/${id}`), () => {
+                    if (!admin()) return undefined;
+                    return null;
+                }, {applyLocally: false});
+                if (!resultado.committed) throw new Error('SEM_PERMISSAO');
+                sucesso = true;
+            } catch {
+                msg.style.color = 'var(--alert-red)';
+                msg.textContent = 'Não foi possível excluir. Verifique sua permissão de administrador e a conexão. O painel não confirmou a exclusão.';
+            } finally {
+                $('btn-salvar-config').disabled = false;
+                $('confirmar-exclusao').disabled = false;
+                $('demo-toggle').disabled = false;
+                atualizarBotaoExcluir();
+            }
+            if (sucesso) {
+                fecharModal();
+                delete motores[id];
+                const proximo = Object.keys(motores).filter(idValido).sort()[0];
+                limparGraficos();
+                if (proximo) selecionarMotor(proximo);
+                else renderizar();
+                $('status-salvamento').textContent = `Motor ${id} excluído.`;
+            }
+        }
+        $('btn-excluir-motor').addEventListener('click', excluirMotor);
         $('btn-salvar-config').addEventListener('click', async () => {
             const msg = $('mensagem-config'); msg.style.color = 'var(--alert-red)';
             if (!admin()) { msg.textContent = 'Você não possui permissão.'; return; }
+            if ($('btn-salvar-config').disabled) return;
             const criando = novoCadastro, origem = alvoModal, id = $('config-id').value.trim();
             const renomeando = !criando && id !== origem;
             const nome = $('config-nome').value.trim();
@@ -937,7 +1017,7 @@ setInterval(drawDemo,2000);
                 tipoAlimentacao: $('config-alimentacao').value, tensaoVolts: Number($('config-tensao').value),
                 potenciaCV: Number($('config-potencia').value), rotacaoRPM: Number($('config-rotacao').value)
             }};
-            $('btn-salvar-config').disabled = true; msg.style.color = 'var(--text-muted)'; msg.textContent = 'Salvando…';
+            $('btn-salvar-config').disabled = true; atualizarBotaoExcluir(); msg.style.color = 'var(--text-muted)'; msg.textContent = 'Salvando…';
             let sucesso = false;
             try {
                 if (criando) {
@@ -965,7 +1045,7 @@ setInterval(drawDemo,2000);
                 msg.textContent = error.message === 'ID_EXISTENTE' ? 'Esse identificador já está cadastrado. Use outro.' :
                     error.message === 'MOTOR_AUSENTE' ? 'O motor original não está mais disponível. Feche esta janela e confira a lista.' :
                     'Não foi possível salvar. Verifique a conexão e publique as regras atualizadas do Firebase para permitir a alteração de identificador.';
-            } finally { $('btn-salvar-config').disabled = false; }
+            } finally { $('btn-salvar-config').disabled = false; atualizarBotaoExcluir(); }
             if (sucesso) {
                 fecharModal(); selecionarMotor(id);
                 $('status-salvamento').textContent = renomeando ? `Identificador alterado: ${origem} → ${id} ✓` : 'Configurações salvas ✓';
