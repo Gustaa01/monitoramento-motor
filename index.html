@@ -718,7 +718,7 @@ setInterval(drawDemo,2000);
             messagingSenderId: "964076129849",
             appId: "1:964076129849:web:2e86e2b9ee2af7ef5cc7e8"
         };
-        const ADMIN_UID = "dWIQZl24FLgywSmYxboFIsU1Z6B3";
+        const ADMIN_UID = "UlOqYe5mq9Vq0IVdTWC5NCJCbK53";
         const app = initializeApp(firebaseConfig), db = getDatabase(app), auth = getAuth(app);
         const $ = id => document.getElementById(id);
         const admin = () => !window.demoActive && auth.currentUser?.uid === ADMIN_UID;
