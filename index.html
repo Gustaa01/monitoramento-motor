@@ -188,9 +188,7 @@
             font-weight: bold;
         }
 
-        /*
-         * JANELA DE CONFIGURAÇÕES
-         */
+        /* JANELA DE CONFIGURAÇÕES */
 
         .modal {
             display: none;
@@ -375,7 +373,6 @@ body {font-family:Inter,Segoe UI,Arial,sans-serif;padding:28px 38px 20px;max-wid
 @media(max-width:1100px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body{padding:22px;}}@media(max-width:600px){body{padding:16px;}.topbar{align-items:flex-start;flex-direction:column;margin-bottom:24px;}.toolbar{width:100%;}.toolbar button{flex:1;padding:10px 6px;font-size:11px;}.header{padding:17px;}.dashboard-grid{gap:10px;}.card{padding:15px;}.card h2{font-size:11px;margin-bottom:16px;}.valor-display{font-size:32px;}.unidade{font-size:10px;}.chart-container{height:85px;}.demo-strip{align-items:flex-start;flex-direction:column;}.foot{flex-direction:column;gap:4px;}.section-label{align-items:flex-start;flex-direction:column;}body.presentation .valor-display{font-size:36px;}.motor-title input{font-size:19px;}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;}}
 
-
 .danger-zone{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;}
 .danger-zone summary{color:var(--alert-red);font-weight:650;cursor:pointer;}
 .danger-zone p{color:var(--text-muted);line-height:1.6;}
@@ -390,13 +387,12 @@ input:not(:disabled), textarea:not(:disabled), [contenteditable="true"] {
 button:not(:disabled), .btn:not(:disabled), select:not(:disabled), summary, a[href] { cursor: pointer; }
 button:disabled, .btn:disabled { cursor: not-allowed; }
 input:disabled, textarea:disabled { cursor: default; -webkit-user-select: none; user-select: none; }
-
-</style>
+    </style>
 </head>
 
 <body>
-<nav class="topbar" aria-label="Controles do painel"><div class="brand"><span class="brand-mark" aria-hidden="true">≋</span><div>MOTOR<span style="color:var(--accent-blue)"> / </span>MONITOR<small>SENAI · MONITORAMENTO INDUSTRIAL</small></div></div><div class="toolbar"><button id="theme-toggle" type="button">Tema claro</button><button id="demo-toggle" type="button" aria-pressed="false">Demonstração</button><button id="present-toggle" type="button" aria-pressed="false">Apresentar</button></div></nav>
-<div id="demo-strip" class="demo-strip" hidden role="status"><div><strong>DADOS SIMULADOS</strong> · Demonstração local. Nenhuma leitura é enviada ao banco.</div><label>Cenário <select id="demo-scenario"><option value="normal">Em funcionamento</option><option value="alerta">Temperatura elevada</option><option value="parado">Motor parado</option></select></label></div>
+    <nav class="topbar" aria-label="Controles do painel"><div class="brand"><span class="brand-mark" aria-hidden="true">≋</span><div>MOTOR<span style="color:var(--accent-blue)"> / </span>MONITOR<small>SENAI · MONITORAMENTO INDUSTRIAL</small></div></div><div class="toolbar"><button id="theme-toggle" type="button">Tema claro</button><button id="demo-toggle" type="button" aria-pressed="false">Demonstração</button><button id="present-toggle" type="button" aria-pressed="false">Apresentar</button></div></nav>
+    <div id="demo-strip" class="demo-strip" hidden role="status"><div><strong>DADOS SIMULADOS</strong> · Demonstração local. Nenhuma leitura é enviada ao banco.</div><label>Cenário <select id="demo-scenario"><option value="normal">Em funcionamento</option><option value="alerta">Temperatura elevada</option><option value="parado">Motor parado</option></select></label></div>
 
     <section class="overview" aria-labelledby="titulo-visao">
         <div class="overview-heading"><div><p class="eyebrow">SENAI · MONITORAMENTO INDUSTRIAL</p>
@@ -406,7 +402,7 @@ input:disabled, textarea:disabled { cursor: default; -webkit-user-select: none; 
         <p id="conexao" class="muted" role="status">Conectando ao banco de dados…</p>
         <p id="aviso-lista" class="muted" role="status"></p>
         <form id="abrir-id" class="open-id"><label for="motor-id">Abrir motor pelo identificador</label>
-        <input id="motor-id" placeholder="Ex.: motor02" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" required>
+        <input id="motor-id" placeholder="Ex.: motor01" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" required>
         <button class="btn btn-secondary" type="submit">Abrir</button></form>
         <div id="lista-motores" class="motor-list" aria-label="Motores cadastrados"></div>
     </section>
@@ -671,8 +667,6 @@ input:disabled, textarea:disabled { cursor: default; -webkit-user-select: none; 
         </div>
     </div>
 
-
-
 <script>
 (() => {
 const $=id=>document.getElementById(id);
@@ -718,7 +712,8 @@ setInterval(drawDemo,2000);
             messagingSenderId: "964076129849",
             appId: "1:964076129849:web:2e86e2b9ee2af7ef5cc7e8"
         };
-        const ADMIN_UID = "UlOqYe5mq9Vq0IVdTWC5NCJCbK53";
+        // CORREÇÃO 1: UID de Administrador alinhado com as regras do Firebase
+        const ADMIN_UID = "dWIQZl24FLgywSmYxboFIsU1Z6B3";
         const app = initializeApp(firebaseConfig), db = getDatabase(app), auth = getAuth(app);
         const $ = id => document.getElementById(id);
         const admin = () => !window.demoActive && auth.currentUser?.uid === ADMIN_UID;
@@ -732,10 +727,12 @@ setInterval(drawDemo,2000);
         let pararLista = null, versaoEscuta = 0, alvoModal = null, novoCadastro = false, focoAnterior = null;
         let assinaturaAnterior = null;
         const escutasIndividuais = new Map();
+
+        // CORREÇÃO 2: Nome da propriedade do sensor de vibração ajustado para 'vibracao'
         const sensores = [
             { campo: 'temperatura', elemento: 'val-temp', canvas: 'graficoTemp', casas: 1, cor: '#ff4757' },
             { campo: 'corrente', elemento: 'val-corrente', canvas: 'graficoCorrente', casas: 2, cor: '#2ed573' },
-            { campo: 'vibracaoAceleracaoRms', elemento: 'val-vibracao', canvas: 'graficoVibracao', casas: 2, cor: '#aa95ef' },
+            { campo: 'vibracao', elemento: 'val-vibracao', canvas: 'graficoVibracao', casas: 2, cor: '#aa95ef' },
             { campo: 'rotacaoRPM', elemento: 'val-rpm', canvas: 'graficoRPM', casas: 0, cor: '#55d5a4' }
         ];
         for (const s of sensores) {
@@ -764,7 +761,6 @@ setInterval(drawDemo,2000);
             if(window.demoActive) return;
             const lista = $('lista-motores');
             const ids = Object.keys(motores).sort((a,b) => a.localeCompare(b, 'pt-BR', {numeric: true}));
-            // Reutiliza os botões para preservar o foco durante atualizações em tempo real.
             for (const el of Array.from(lista.children)) if (!ids.includes(el.dataset.id)) el.remove();
             for (const id of ids) {
                 const motor = objeto(motores[id]), config = objeto(motor.configuracoes), dados = objeto(motor.dadosAtuais);
@@ -779,7 +775,10 @@ setInterval(drawDemo,2000);
                 tile.setAttribute('aria-pressed', String(id === motorSelecionado));
                 tile.children[0].textContent = id;
                 tile.children[1].textContent = config.nomeMotor || id;
-                tile.children[2].textContent = `${valor(dados.temperatura,1)} °C  ·  ${valor(dados.corrente,2)} A  ·  ${valor(dados.vibracaoAceleracaoRms,2)} m/s²`;
+                
+                // Fallback para suportar o nome antigo ou novo da vibração nos cartões da lista
+                const valVib = dados.vibracao ?? dados.vibracaoAceleracaoRms;
+                tile.children[2].textContent = `${valor(dados.temperatura,1)} °C  ·  ${valor(dados.corrente,2)} A  ·  ${valor(valVib,2)} m/s²`;
             }
             if (listaCompleta) $('aviso-lista').textContent = ids.length ? `${ids.length} motor(es) cadastrado(s).` : 'Nenhum motor cadastrado. Entre como administrador para cadastrar.';
         }
@@ -789,18 +788,18 @@ setInterval(drawDemo,2000);
             if (document.activeElement !== $('nome-motor')) $('nome-motor').value = config.nomeMotor || motorSelecionado;
             const e = objeto(config.especificacoes);
             $('especificacoes-motor').textContent = `${e.tipoAlimentacao ?? '--'} ${e.tensaoVolts ?? '--'}V | ${e.potenciaCV ?? '--'} CV | ${e.rotacaoRPM ?? '--'} RPM`;
-            // Não inferir motor ligado a partir de conexão Firebase ou página aberta.
             window.renderMotorStatus(objeto(motor.status), dados);
             const existe = Boolean(motores[motorSelecionado]);
             $('mensagem-painel').textContent = !existe ? `${motorSelecionado}: sem cadastro ou leitura disponível.` :
-                `Equipamento selecionado: ${motorSelecionado}. ` + (sensores.some(s => numero(dados[s.campo]) !== null) ? 'Exibindo as últimas leituras armazenadas.' : 'Aguardando leituras dos sensores.');
+                `Equipamento selecionado: ${motorSelecionado}. ` + (sensores.some(s => numero(dados[s.campo] ?? dados.vibracaoAceleracaoRms) !== null) ? 'Exibindo as últimas leituras armazenadas.' : 'Aguardando leituras dos sensores.');
             if (!window.demoActive && typeof Chart === 'undefined') $('mensagem-painel').textContent += ' Gráficos indisponíveis; recarregue a página.';
             const assinatura = JSON.stringify(dados);
             const mudou = assinatura !== assinaturaAnterior;
             for (const s of sensores) {
-                $(s.elemento).textContent = valor(dados[s.campo], s.casas);
+                const valLeitura = dados[s.campo] ?? (s.campo === 'vibracao' ? dados.vibracaoAceleracaoRms : null);
+                $(s.elemento).textContent = valor(valLeitura, s.casas);
                 if (mudou && s.chart) {
-                    const n = numero(dados[s.campo]);
+                    const n = numero(valLeitura);
                     s.chart.data.labels.push(new Date().toLocaleTimeString('pt-BR'));
                     s.chart.data.datasets[0].data.push(n);
                     if (s.chart.data.labels.length > 30) { s.chart.data.labels.shift(); s.chart.data.datasets[0].data.shift(); }
@@ -823,7 +822,6 @@ setInterval(drawDemo,2000);
             if (escutasIndividuais.has(id)) return;
             const cancelamentos = []; escutasIndividuais.set(id, cancelamentos);
             const geracao = versaoEscuta;
-            // Mantém compatibilidade com regras que só permitem ler os filhos do motor01.
             for (const filho of ['configuracoes', 'dadosAtuais', 'status']) {
                 cancelamentos.push(onValue(ref(db, `motores/${id}/${filho}`), snapshot => {
                     if (geracao !== versaoEscuta) return;
@@ -918,7 +916,6 @@ setInterval(drawDemo,2000);
         }
         $('config-id').addEventListener('input', atualizarAvisoIdentificador);
         function prepararRenomeacao(atual, origem, destino, config) {
-            // null pode ser o cache inicial: confirma no servidor antes de tratar como ausente.
             if (atual === null) return null;
             if (!Object.prototype.hasOwnProperty.call(atual, origem)) throw new Error('MOTOR_AUSENTE');
             if (Object.prototype.hasOwnProperty.call(atual, destino)) throw new Error('ID_EXISTENTE');
@@ -960,9 +957,8 @@ setInterval(drawDemo,2000);
         $('confirmar-exclusao').addEventListener('input', atualizarBotaoExcluir);
         async function excluirMotor() {
             const msg = $('mensagem-config');
-            // Autorizacao real tambem depende das regras do Firebase.
             if (!admin() || novoCadastro || !alvoModal || $('btn-salvar-config').disabled) return;
-            const id = alvoModal; // ID original do cadastro, mesmo que o campo de edicao mude.
+            const id = alvoModal;
             if (!idValido(id) || $('confirmar-exclusao').value !== id) {
                 msg.style.color = 'var(--alert-red)';
                 msg.textContent = 'Digite exatamente o identificador do motor para excluir.';
@@ -1021,12 +1017,9 @@ setInterval(drawDemo,2000);
             let sucesso = false;
             try {
                 if (criando) {
-                    // Transação evita substituir as configurações de outro cadastro com o mesmo ID.
                     const resultado = await runTransaction(ref(db, `motores/${id}`), atual => atual === null ? {configuracoes: config} : undefined, {applyLocally: false});
                     if (!resultado.committed) throw new Error('ID_EXISTENTE');
                 } else if (renomeando) {
-                    // Uma transação move o motor inteiro e verifica colisões na mesma operação.
-                    // Em caso de escrita concorrente, o Firebase repete com os dados atualizados.
                     const resultado = await runTransaction(ref(db, 'motores'), atual =>
                         prepararRenomeacao(atual, origem, id, config), {applyLocally: false});
                     if (!resultado.committed || !resultado.snapshot.child(id).exists()) throw new Error('MOTOR_AUSENTE');
