@@ -699,7 +699,7 @@ setInterval(drawDemo,2000);
       if (window.liveStarted) return;
       window.liveStarted=true;
       try {
-        const [{initializeApp}, {getDatabase,ref,onValue,update,runTransaction}, {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}] = await Promise.all([
+        const [{initializeApp}, {getDatabase,ref,onValue,update,runTransaction,remove}, {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}] = await Promise.all([
           import('https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js'),
           import('https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js'),
           import('https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js')]);
@@ -712,8 +712,8 @@ setInterval(drawDemo,2000);
             messagingSenderId: "964076129849",
             appId: "1:964076129849:web:2e86e2b9ee2af7ef5cc7e8"
         };
-        // CORREÇÃO 1: UID de Administrador alinhado com as regras do Firebase
-        const ADMIN_UID = "dWIQZl24FLgywSmYxboFIsU1Z6B3";
+        // UID DE ADMINISTRADOR ATUALIZADO
+        const ADMIN_UID = "UlOqYe5mq9Vq0IVdTWC5NCJCbK53";
         const app = initializeApp(firebaseConfig), db = getDatabase(app), auth = getAuth(app);
         const $ = id => document.getElementById(id);
         const admin = () => !window.demoActive && auth.currentUser?.uid === ADMIN_UID;
@@ -728,7 +728,7 @@ setInterval(drawDemo,2000);
         let assinaturaAnterior = null;
         const escutasIndividuais = new Map();
 
-        // CORREÇÃO 2: Nome da propriedade do sensor de vibração ajustado para 'vibracao'
+        // CAMPO 'vibracao' COMPATÍVEL COM AS REGRAS DO FIREBASE
         const sensores = [
             { campo: 'temperatura', elemento: 'val-temp', canvas: 'graficoTemp', casas: 1, cor: '#ff4757' },
             { campo: 'corrente', elemento: 'val-corrente', canvas: 'graficoCorrente', casas: 2, cor: '#2ed573' },
@@ -775,8 +775,6 @@ setInterval(drawDemo,2000);
                 tile.setAttribute('aria-pressed', String(id === motorSelecionado));
                 tile.children[0].textContent = id;
                 tile.children[1].textContent = config.nomeMotor || id;
-                
-                // Fallback para suportar o nome antigo ou novo da vibração nos cartões da lista
                 const valVib = dados.vibracao ?? dados.vibracaoAceleracaoRms;
                 tile.children[2].textContent = `${valor(dados.temperatura,1)} °C  ·  ${valor(dados.corrente,2)} A  ·  ${valor(valVib,2)} m/s²`;
             }
@@ -955,6 +953,8 @@ setInterval(drawDemo,2000);
                 $('btn-salvar-config').disabled || $('confirmar-exclusao').value !== alvoModal;
         }
         $('confirmar-exclusao').addEventListener('input', atualizarBotaoExcluir);
+
+        // FUNÇÃO DE EXCLUSÃO ATUALIZADA UTILIZANDO remove()
         async function excluirMotor() {
             const msg = $('mensagem-config');
             if (!admin() || novoCadastro || !alvoModal || $('btn-salvar-config').disabled) return;
@@ -968,24 +968,24 @@ setInterval(drawDemo,2000);
             $('btn-excluir-motor').disabled = true;
             $('confirmar-exclusao').disabled = true;
             $('demo-toggle').disabled = true;
-            msg.style.color = 'var(--text-muted)'; msg.textContent = 'Excluindo motor…';
+            msg.style.color = 'var(--text-muted)'; 
+            msg.textContent = 'Excluindo motor…';
+            
             let sucesso = false;
             try {
-                const resultado = await runTransaction(ref(db, `motores/${id}`), () => {
-                    if (!admin()) return undefined;
-                    return null;
-                }, {applyLocally: false});
-                if (!resultado.committed) throw new Error('SEM_PERMISSAO');
+                await remove(ref(db, `motores/${id}`));
                 sucesso = true;
-            } catch {
+            } catch (error) {
                 msg.style.color = 'var(--alert-red)';
-                msg.textContent = 'Não foi possível excluir. Verifique sua permissão de administrador e a conexão. O painel não confirmou a exclusão.';
+                msg.textContent = 'Não foi possível excluir. Verifique sua permissão de administrador e a conexão.';
+                console.error('Erro na exclusão:', error);
             } finally {
                 $('btn-salvar-config').disabled = false;
                 $('confirmar-exclusao').disabled = false;
                 $('demo-toggle').disabled = false;
                 atualizarBotaoExcluir();
             }
+
             if (sucesso) {
                 fecharModal();
                 delete motores[id];
@@ -993,7 +993,7 @@ setInterval(drawDemo,2000);
                 limparGraficos();
                 if (proximo) selecionarMotor(proximo);
                 else renderizar();
-                $('status-salvamento').textContent = `Motor ${id} excluído.`;
+                $('status-salvamento').textContent = `Motor ${id} excluído com sucesso.`;
             }
         }
         $('btn-excluir-motor').addEventListener('click', excluirMotor);
