@@ -23,6 +23,21 @@
             --warn-yellow: #ffa502;
             --line: #293544;
             --shadow: 0 14px 40px #0002;
+            --stage-a: #2f4366;
+            --stage-b: #101828;
+        }
+
+        :root[data-theme="light"] {
+            --bg-color: #eef2f7;
+            --panel-bg: #ffffff;
+            --panel-secondary: #e6ecf4;
+            --text-main: #14202e;
+            --text-muted: #5b6b7e;
+            --accent-blue: #0077b6;
+            --line: #cfd8e3;
+            --shadow: 0 14px 40px #1a2a4012;
+            --stage-a: #eaf1fb;
+            --stage-b: #b4c5dc;
         }
 
         * {
@@ -56,8 +71,9 @@
         .brand small { display: block; font-size: 10px; color: var(--text-muted); letter-spacing: .16em; font-weight: 500; margin-top: 2px; }
         .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
         .toolbar button, .btn { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; background: var(--panel-bg); color: var(--text-main); font-weight: 600; font-size: 12px; }
-        .btn-primary, #demo-toggle[aria-pressed="true"] { background: var(--accent-blue); color: #101018; border-color: var(--accent-blue); }
-        .btn-secondary { background-color: #3b3b52; color: var(--text-main); }
+        .btn-primary, #demo-toggle[aria-pressed="true"], #present-toggle[aria-pressed="true"] { background: var(--accent-blue); color: #101018; border-color: var(--accent-blue); }
+        .btn-secondary { background-color: #3b3b52; color: #fff; }
+        :root[data-theme="light"] .btn-secondary { background-color: #dbe3ee; color: var(--text-main); }
         .btn-danger { background-color: var(--alert-red); color: white; border-color: var(--alert-red); }
 
         .eyebrow { font-size: 10px; letter-spacing: .2em; font-weight: 700; color: var(--accent-blue); margin: 0 0 9px; }
@@ -106,9 +122,10 @@
         .chart-container:after { content: 'AGORA'; position: absolute; bottom: -12px; right: 0; font-size: 8px; letter-spacing: .1em; color: var(--text-muted); }
         .card-note { font-size: 10px; color: var(--text-muted); margin: 25px 0 0; border-top: 1px solid var(--line); padding-top: 11px; }
 
-        /* Estilos do Modelo 3D & Tags Flutuantes */
+        /* Modelo 3D & Tags Flutuantes */
         .card-3d { grid-column: 1 / -1; }
-        .container-3d-box { width: 100%; height: 420px; border-radius: 8px; overflow: hidden; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); position: relative; }
+        .container-3d-box { width: 100%; height: 440px; border-radius: 8px; overflow: hidden; background: radial-gradient(circle at 50% 40%, var(--stage-a) 0%, var(--stage-b) 100%); position: relative; }
+        .container-3d-box canvas { display: block; }
         .sensor-tag-3d {
             position: absolute;
             transform: translate(-50%, -100%);
@@ -124,17 +141,12 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.6);
             transition: opacity 0.2s ease;
             z-index: 10;
+            left: -999px; top: -999px;
         }
-        .sensor-tag-3d::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 5px 5px 0;
-            border-style: solid;
-            border-color: inherit transparent;
-        }
+        .hud-3d { position: absolute; top: 12px; left: 12px; z-index: 11; display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,.12); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .04em; pointer-events: none; }
+        .hud-3d .dot { width: 10px; height: 10px; border-radius: 50%; background: #a0a0b5; box-shadow: 0 0 8px currentColor; }
+        .hud-3d.pulsar .dot { animation: pulsar 1s infinite ease-in-out; }
+        @keyframes pulsar { 50% { opacity: .3; transform: scale(.8); } }
 
         .demo-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--warn-yellow); border-radius: 9px; padding: 12px 16px; margin-bottom: 22px; background: var(--panel-secondary); color: var(--text-main); font-size: 12px; }
         .foot { display: flex; justify-content: space-between; gap: 15px; color: var(--text-muted); border-top: 1px solid var(--line); padding-top: 18px; margin-top: 34px; font-size: 10px; }
@@ -150,10 +162,17 @@
         .form-grupo { display: flex; flex-direction: column; gap: 7px; }
         .form-grupo.nome-completo { grid-column: 1 / -1; }
         .form-grupo input, .form-grupo select { width: 100%; background-color: var(--panel-secondary); color: var(--text-main); border: 1px solid var(--line); border-radius: 7px; padding: 11px; font-size: 15px; outline: none; }
-        
+        #zona-excluir input { background-color: var(--panel-secondary); color: var(--text-main); border: 1px solid var(--line); border-radius: 7px; padding: 9px; margin-right: 8px; }
+
+        /* Modo apresentação */
+        body.apresentacao .open-id, body.apresentacao .admin-controls, body.apresentacao #btn-novo,
+        body.apresentacao #aviso-lista, body.apresentacao #conexao, body.apresentacao .foot { display: none !important; }
+        body.apresentacao .valor-display { font-size: 52px; }
+        body.apresentacao .container-3d-box { height: 560px; }
+
         [hidden] { display: none !important; }
         @media(max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media(max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } .topbar, .header { flex-direction: column; align-items: stretch; } }
+        @media(max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } .topbar, .header { flex-direction: column; align-items: stretch; } .container-3d-box { height: 340px; } }
     </style>
 </head>
 
@@ -164,7 +183,7 @@
             <div>MOTOR<span style="color:var(--accent-blue)"> / </span>MONITOR<small>SENAI · MONITORAMENTO INDUSTRIAL</small></div>
         </div>
         <div class="toolbar">
-            <button id="theme-toggle" type="button">Tema escuro</button>
+            <button id="theme-toggle" type="button">☀ Tema claro</button>
             <button id="demo-toggle" type="button" aria-pressed="false">Demonstração</button>
             <button id="present-toggle" type="button" aria-pressed="false">Apresentar</button>
         </div>
@@ -172,7 +191,7 @@
 
     <div id="demo-strip" class="demo-strip" hidden role="status">
         <div><strong>DADOS SIMULADOS</strong> · Demonstração local. Nenhuma leitura é enviada ao banco.</div>
-        <label>Cenário 
+        <label>Cenário
             <select id="demo-scenario">
                 <option value="normal">Em funcionamento</option>
                 <option value="alerta">Temperatura elevada</option>
@@ -188,7 +207,7 @@
                 <h1 id="titulo-visao">Cada sinal conta.</h1>
                 <p class="muted">Acompanhe a condição do motor, da temperatura à rotação.</p>
             </div>
-            <button class="btn btn-primary" id="btn-novo" hidden>Cadastrar motor</button>
+            <button type="button" class="btn btn-primary" id="btn-novo" hidden>Cadastrar motor</button>
         </div>
         <p id="conexao" class="muted" role="status">Conectando ao banco de dados…</p>
         <p id="aviso-lista" class="muted" role="status"></p>
@@ -241,11 +260,12 @@
             </div>
 
             <div id="canvas-3d-container" class="container-3d-box">
+                <div id="hud-3d" class="hud-3d"><span id="hud-dot" class="dot"></span><span id="hud-text">Aguardando dados</span></div>
                 <!-- Marcadores Flutuantes 3D -->
-                <div id="tag-max6675" class="sensor-tag-3d" style="border-color: #ff4757;">🔥 MAX6675 (Temp. Carcaça)</div>
-                <div id="tag-mpu6050" class="sensor-tag-3d" style="border-color: #aa95ef;">📳 MPU-6050 (Vibração Mancal)</div>
-                <div id="tag-hall" class="sensor-tag-3d" style="border-color: #55d5a4;">🔄 Sensor Hall (RPM Eixo)</div>
-                <div id="tag-sct013" class="sensor-tag-3d" style="border-color: #2ed573;">⚡ SCT-013 (Corrente Entrada)</div>
+                <div id="tag-max6675" class="sensor-tag-3d" style="border-color: #ff4757;">🔥 MAX6675 · --</div>
+                <div id="tag-mpu6050" class="sensor-tag-3d" style="border-color: #aa95ef;">📳 MPU-6050 · --</div>
+                <div id="tag-hall" class="sensor-tag-3d" style="border-color: #55d5a4;">🔄 Hall · --</div>
+                <div id="tag-sct013" class="sensor-tag-3d" style="border-color: #2ed573;">⚡ SCT-013 · --</div>
             </div>
         </section>
 
@@ -325,12 +345,15 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE DEMONSTRAÇÃO E TEMAS -->
+    <!-- SCRIPT DE DEMONSTRAÇÃO, TEMA E APRESENTAÇÃO -->
     <script>
     (() => {
         const $=id=>document.getElementById(id);
         const fmt=(v,n=1)=>typeof v==='number'&&Number.isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:n,maximumFractionDigits:n}):'--';
         const duration=v=>{if(typeof v!=='number'||!Number.isFinite(v)||v<0)return 'Não informado';const sec=Math.floor(v);return `${Math.floor(sec/3600)}h ${String(Math.floor(sec%3600/60)).padStart(2,'0')}min`;};
+
+        // Estado compartilhado com o modelo 3D
+        window.motorState = { running:false, rpm:0, temp:null, vib:0, corr:0, nivel:'parado' };
 
         window.renderMotorStatus=(status,data)=>{
             const stamp=typeof data.timestamp==='number'?data.timestamp:status.ultimaAtualizacao;
@@ -340,12 +363,13 @@
             $('status-motor').textContent=!fresh?'Sem dados recentes':status.emOperacao===true?'Em funcionamento':status.emOperacao===false?'Parado':'Operação não informada';
             $('status-motor').style.color=fresh&&status.emOperacao===true?'var(--ok-green)':'var(--text-muted)';
             $('uptime').textContent=duration(status.tempoOperacaoTotalSegundos);
+            return fresh;
         };
 
         const cards=[['val-temp','Temperatura da superfície'],['val-corrente','Corrente alternada · RMS'],['val-vibracao','Aceleração vetorial · RMS'],['val-rpm','Rotação medida pelo sensor Hall']];
         for(const [id,note]of cards){const el=document.createElement('p');el.className='card-note';el.textContent=note;$(id).closest('.card').append(el);}
 
-        let tick=0, demoStart=Date.now(); const traces=[[],[],[],[]], baseIds=['val-temp','val-corrente','val-vibracao','val-rpm'];
+        let tick=0, demoStart=Date.now(); const baseIds=['val-temp','val-corrente','val-vibracao','val-rpm'];
 
         function drawDemo(){
             if(!window.demoActive)return;
@@ -357,6 +381,9 @@
             baseIds.forEach((id,i)=>{
                 $(id).textContent=fmt(vals[i],i===3?0:i===0?1:2);
             });
+
+            // Alimenta o modelo 3D com o cenário escolhido
+            window.motorState = { running:!stopped, rpm:vals[3], temp:vals[0], corr:vals[1], vib:vals[2], nivel: stopped?'parado':hot?'alerta':'ok' };
 
             $('status-motor').textContent=stopped?'Parado · simulado':hot?'Temperatura elevada · simulado':'Em funcionamento · simulado';
             $('status-motor').style.color=hot?'var(--warn-yellow)':'var(--ok-green)';
@@ -405,6 +432,7 @@
                 $('especificacoes-motor').textContent='Não informado';
                 $('conexao').textContent='Conectando aos dados reais…';
                 $('mensagem-painel').textContent='Carregando equipamento…';
+                window.motorState = { running:false, rpm:0, temp:null, vib:0, corr:0, nivel:'semdados' };
                 window.renderMotorStatus({},{});
                 if(window.resumeLive)window.resumeLive();
                 if(window.startLive)window.startLive();
@@ -413,6 +441,35 @@
 
         $('demo-toggle').onclick=()=>setDemo(!window.demoActive);
         $('demo-scenario').onchange=()=>drawDemo();
+
+        /* ---------- TEMA CLARO / ESCURO ---------- */
+        function aplicarTema(tema){
+            document.documentElement.dataset.theme = tema;
+            $('theme-toggle').textContent = tema === 'light' ? '🌙 Tema escuro' : '☀ Tema claro';
+            try { localStorage.setItem('tema-motor', tema); } catch(e) {}
+            if (typeof window.aplicarTemaGraficos === 'function') window.aplicarTemaGraficos();
+        }
+        let temaInicial = 'dark';
+        try { temaInicial = localStorage.getItem('tema-motor') === 'light' ? 'light' : 'dark'; } catch(e) {}
+        aplicarTema(temaInicial);
+        $('theme-toggle').onclick = () => aplicarTema(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+
+        /* ---------- MODO APRESENTAÇÃO ---------- */
+        function setApresentacao(on){
+            document.body.classList.toggle('apresentacao', on);
+            $('present-toggle').setAttribute('aria-pressed', on);
+            $('present-toggle').textContent = on ? 'Sair da apresentação' : 'Apresentar';
+            try {
+                if (on && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+                else if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            } catch(e) {}
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+        }
+        $('present-toggle').onclick = () => setApresentacao(!document.body.classList.contains('apresentacao'));
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && document.body.classList.contains('apresentacao')) setApresentacao(false);
+        });
+
         setDemo(location.protocol==='file:'||new URLSearchParams(location.search).get('demo')==='1');
         setInterval(drawDemo,2000);
     })();
@@ -424,151 +481,378 @@
         const container = document.getElementById('canvas-3d-container');
         if (!container) return;
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(3.5, 2.2, 4.5);
+        const falhar = (msg) => {
+            container.querySelectorAll('.sensor-tag-3d, .hud-3d').forEach(t => t.hidden = true);
+            const aviso = document.createElement('div');
+            aviso.style.cssText = 'position:absolute;inset:0;display:grid;place-items:center;color:#a0a0b5;font-size:13px;padding:20px;text-align:center';
+            aviso.textContent = msg;
+            container.appendChild(aviso);
+        };
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
+        if (typeof THREE === 'undefined' || !THREE.OrbitControls) { falhar('Não foi possível carregar o modelo 3D (biblioteca Three.js indisponível).'); return; }
+
+        let renderer;
+        try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+        catch (e) { falhar('Seu navegador não conseguiu iniciar o WebGL, necessário para o modelo 3D.'); return; }
+
+        const W = () => Math.max(container.clientWidth, 1);
+        const H = () => Math.max(container.clientHeight, 1);
+        const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(42, W() / H(), 0.1, 100);
+        const CAM_INICIAL = new THREE.Vector3(3.6, 2.1, 4.4);
+        const ALVO = new THREE.Vector3(0, 0.1, 0);
+        camera.position.copy(CAM_INICIAL);
+
+        renderer.setSize(W(), H());
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         container.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
+        controls.dampingFactor = 0.06;
+        controls.minDistance = 2.2;
+        controls.maxDistance = 12;
+        controls.target.copy(ALVO);
+        controls.update();
 
-        // Luzes
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-        const dirLight1 = new THREE.DirectionalLight(0x59bbf8, 1.2);
-        dirLight1.position.set(6, 10, 8);
-        scene.add(dirLight1);
+        /* ---------- ILUMINAÇÃO (bem mais clara) ---------- */
+        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x44506a, 0.75));
+        const luzPrincipal = new THREE.DirectionalLight(0xffffff, 1.1);
+        luzPrincipal.position.set(5, 8, 6);
+        scene.add(luzPrincipal);
+        const luzPreenche = new THREE.DirectionalLight(0x9cc8ff, 0.5);
+        luzPreenche.position.set(-6, 3, -4);
+        scene.add(luzPreenche);
+        const luzContorno = new THREE.DirectionalLight(0xffffff, 0.4);
+        luzContorno.position.set(0, -4, 6);
+        scene.add(luzContorno);
+
+        /* ---------- PISO: grade + sombra falsa ---------- */
+        const grade = new THREE.GridHelper(8, 16, 0x3b82f6, 0x64748b);
+        grade.position.y = -0.93;
+        grade.material.transparent = true;
+        grade.material.opacity = 0.35;
+        scene.add(grade);
+
+        const cvSombra = document.createElement('canvas');
+        cvSombra.width = cvSombra.height = 128;
+        const ctxS = cvSombra.getContext('2d');
+        const grad = ctxS.createRadialGradient(64, 64, 4, 64, 64, 64);
+        grad.addColorStop(0, 'rgba(0,0,0,0.55)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctxS.fillStyle = grad;
+        ctxS.fillRect(0, 0, 128, 128);
+        const sombra = new THREE.Mesh(
+            new THREE.PlaneGeometry(4.2, 2.8),
+            new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cvSombra), transparent: true, depthWrite: false })
+        );
+        sombra.rotation.x = -Math.PI / 2;
+        sombra.position.y = -0.925;
+        scene.add(sombra);
+
+        /* ---------- MATERIAIS (metalness baixo = não fica escuro sem mapa de ambiente) ---------- */
+        const std = (cor, metal, rug) => new THREE.MeshStandardMaterial({ color: cor, metalness: metal, roughness: rug });
+        const COR_FRIA = new THREE.Color(0x2b6cb0), COR_QUENTE = new THREE.Color(0xe0472f);
+        const COR_ALETA = new THREE.Color(0x24568f), COR_ALETA_Q = new THREE.Color(0xb23a28);
+        const matCarcaca = std(0x2b6cb0, 0.25, 0.5);
+        const matAletas = std(0x24568f, 0.25, 0.55);
+        const matCobertura = new THREE.MeshStandardMaterial({ color: 0x7fb0e8, metalness: 0.2, roughness: 0.5, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false });
+        const matGrade = std(0xa9bdd4, 0.3, 0.4);
+        const matEixo = std(0xdfe6ee, 0.35, 0.3);
+        const matFerro = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.3, roughness: 0.5, side: THREE.DoubleSide });
+        const matRotor = std(0x8795a8, 0.3, 0.5);
+        const matBarra = std(0xd5dde8, 0.3, 0.35);
+        const matMarca = new THREE.MeshStandardMaterial({ color: 0xff9f1c, emissive: 0x5a3000, metalness: 0.2, roughness: 0.4 });
+        const matVent = std(0xc4d7ee, 0.2, 0.45);
+        const matCabo = std(0x1f2937, 0.1, 0.7);
+        const matGrampo = std(0x4b5563, 0.2, 0.5);
+
+        /* ---------- HELPERS ---------- */
+        const cilX = (r, len, mat, seg = 40, aberto = false) => {
+            const g = new THREE.CylinderGeometry(r, r, len, seg, 1, aberto);
+            g.rotateZ(Math.PI / 2);
+            return new THREE.Mesh(g, mat);
+        };
+        const aneloX = (raio, esp, mat) => {
+            const g = new THREE.TorusGeometry(raio, esp, 8, 48);
+            g.rotateY(Math.PI / 2);
+            return new THREE.Mesh(g, mat);
+        };
 
         const grupoMotor = new THREE.Group();
         scene.add(grupoMotor);
+        const rotGroup = new THREE.Group();   // tudo que gira junto com o eixo
+        grupoMotor.add(rotGroup);
 
-        // Materiais
-        const matCarcaça = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.7 });
-        const matAletas = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6, metalness: 0.5 });
-        const matEixo = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2, metalness: 0.95 });
-        const matCobreInterno = new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.3, metalness: 0.8 });
-        const matRotorInterno = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5, metalness: 0.8 });
+        /* ---------- PARTES ESTÁTICAS ---------- */
+        grupoMotor.add(cilX(0.8, 1.8, matCarcaca, 48));
 
-        // Montagem Procedural das Peças 3D
-        const meshCarcaça = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.8, 32), matCarcaça);
-        meshCarcaça.rotation.z = Math.PI / 2;
-        grupoMotor.add(meshCarcaça);
-
-        const aletasGroup = new THREE.Group();
-        for (let i = -0.7; i <= 0.7; i += 0.12) {
-            const meshAleta = new THREE.Mesh(new THREE.CylinderGeometry(0.86, 0.86, 0.04, 32), matAletas);
-            meshAleta.position.x = i;
-            meshAleta.rotation.z = Math.PI / 2;
-            aletasGroup.add(meshAleta);
+        const aletas = [];
+        for (let k = 0; k < 12; k++) {
+            const a = cilX(0.86, 0.04, matAletas, 48);
+            a.position.x = -0.66 + k * 0.12;
+            grupoMotor.add(a);
+            aletas.push(a);
         }
-        grupoMotor.add(aletasGroup);
 
-        const meshPe = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.15, 1.8), matCarcaça);
-        meshPe.position.set(0, -0.85, 0);
-        grupoMotor.add(meshPe);
+        const tampaFrontal = cilX(0.8, 0.1, matCarcaca, 48); tampaFrontal.position.x = -0.95; grupoMotor.add(tampaFrontal);
+        const mancal = cilX(0.24, 0.16, matCarcaca, 32); mancal.position.x = -1.05; grupoMotor.add(mancal);
+        const tampaTraseira = cilX(0.8, 0.1, matCarcaca, 48); tampaTraseira.position.x = 0.95; grupoMotor.add(tampaTraseira);
 
-        const meshCaixa = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.5), matCarcaça);
-        meshCaixa.position.set(0, 0.95, 0);
-        grupoMotor.add(meshCaixa);
+        // Cobertura do ventilador + grade
+        const cobertura = cilX(0.82, 0.42, matCobertura, 48, true); cobertura.position.x = 1.17; grupoMotor.add(cobertura);
+        for (const r of [0.25, 0.5, 0.78]) { const an = aneloX(r, 0.012, matGrade); an.position.x = 1.38; grupoMotor.add(an); }
+        const anelBorda = aneloX(0.8, 0.02, matGrade); anelBorda.position.x = 0.97; grupoMotor.add(anelBorda);
+        for (let k = 0; k < 6; k++) {
+            const raio = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.58, 0.02), matGrade);
+            raio.position.x = 1.38;
+            raio.rotation.x = k * Math.PI / 6;
+            grupoMotor.add(raio);
+        }
 
-        const meshEixo = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 2.8, 24), matEixo);
-        meshEixo.rotation.z = Math.PI / 2;
-        grupoMotor.add(meshEixo);
+        const pe = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.15, 1.8), matCarcaca); pe.position.set(0, -0.85, 0); grupoMotor.add(pe);
+        const caixa = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.5), matCarcaca); caixa.position.set(0, 0.95, 0); grupoMotor.add(caixa);
 
-        // Peças Internas para Raio-X
-        const meshEstator = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 1.3, 24, 1, true), matCobreInterno);
-        meshEstator.rotation.z = Math.PI / 2;
-        grupoMotor.add(meshEstator);
+        // Cabo + garra do sensor de corrente (SCT-013)
+        const cabo = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 12), matCabo); cabo.position.set(0, 1.3, -0.2); grupoMotor.add(cabo);
+        const garra = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.035, 8, 24), matGrampo);
+        garra.rotation.x = Math.PI / 2; garra.position.set(0, 1.3, -0.2); grupoMotor.add(garra);
 
-        const meshRotor = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 1.1, 24), matRotorInterno);
-        meshRotor.rotation.z = Math.PI / 2;
-        grupoMotor.add(meshRotor);
+        /* ---------- PARTES INTERNAS (visíveis no Raio-X) ---------- */
+        const estator = cilX(0.68, 1.3, matFerro, 48, true); grupoMotor.add(estator);
 
-        // Pontos dos Sensores
+        const bobinas = [];
+        const N_BOBINAS = 12;
+        for (let i = 0; i < N_BOBINAS; i++) {
+            const th = i * 2 * Math.PI / N_BOBINAS;
+            const mat = new THREE.MeshStandardMaterial({ color: 0xc97a3a, metalness: 0.25, roughness: 0.45, emissive: 0xff7a1a, emissiveIntensity: 0 });
+            const b = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.14, 0.17), mat);
+            b.position.set(0, 0.59 * Math.cos(th), 0.59 * Math.sin(th));
+            b.rotation.x = th;
+            grupoMotor.add(b);
+            bobinas.push({ mat, th });
+        }
+
+        /* ---------- PARTES GIRATÓRIAS ---------- */
+        const eixo = cilX(0.14, 2.75, matEixo, 24); eixo.position.x = -0.075; rotGroup.add(eixo);
+        rotGroup.add(cilX(0.4, 1.1, matRotor, 32));
+        for (const x of [-0.57, 0.57]) { const ar = cilX(0.44, 0.05, matBarra, 32); ar.position.x = x; rotGroup.add(ar); }
+        for (let i = 0; i < 14; i++) {
+            const th = i * 2 * Math.PI / 14;
+            const b = new THREE.Mesh(new THREE.BoxGeometry(1.14, 0.06, 0.07), i === 0 ? matMarca : matBarra);
+            b.position.set(0, 0.42 * Math.cos(th), 0.42 * Math.sin(th));
+            b.rotation.x = th;
+            rotGroup.add(b);
+        }
+        // Chaveta do eixo (marca visível girando)
+        const chaveta = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.05, 0.06), matMarca);
+        chaveta.position.set(-1.3, 0.15, 0); rotGroup.add(chaveta);
+        // Disco com ímã (lido pelo sensor Hall)
+        const disco = cilX(0.2, 0.05, std(0xe5e7eb, 0.3, 0.4), 32); disco.position.x = -1.2; rotGroup.add(disco);
+        const ima = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.09, 0.1), std(0xff4757, 0.2, 0.4)); ima.position.set(-1.2, 0.18, 0); rotGroup.add(ima);
+        // Ventilador
+        const cubo = cilX(0.15, 0.12, matVent, 24); cubo.position.x = 1.15; rotGroup.add(cubo);
+        for (let i = 0; i < 8; i++) {
+            const th = i * 2 * Math.PI / 8;
+            const pa = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.5, 0.16), matVent);
+            pa.position.set(1.15, 0.38 * Math.cos(th), 0.38 * Math.sin(th));
+            pa.rotation.set(th, 0.4, 0);
+            rotGroup.add(pa);
+        }
+
+        /* ---------- SENSORES ---------- */
         const posSensores = {
             max6675: new THREE.Vector3(0.2, 0.85, 0.1),
-            mpu6050: new THREE.Vector3(0.92, 0.35, 0.45),
-            hall: new THREE.Vector3(-1.35, 0.2, 0),
-            sct013: new THREE.Vector3(0, 1.15, -0.2)
+            mpu6050: new THREE.Vector3(0.7, 0.55, 0.58),
+            hall: new THREE.Vector3(-1.2, 0.3, 0),
+            sct013: new THREE.Vector3(0.14, 1.3, -0.2)
         };
-
-        const criarEsferaSensor = (pos, corHex) => {
-            const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshBasicMaterial({ color: corHex }));
-            sphere.position.copy(pos);
-            grupoMotor.add(sphere);
+        const esferas = [];
+        const criarEsferaSensor = (pos, corHex, fase) => {
+            const s = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshBasicMaterial({ color: corHex }));
+            s.position.copy(pos);
+            grupoMotor.add(s);
+            esferas.push({ mesh: s, fase });
         };
+        criarEsferaSensor(posSensores.max6675, 0xff4757, 0);
+        criarEsferaSensor(posSensores.mpu6050, 0xaa95ef, 1.5);
+        criarEsferaSensor(posSensores.hall, 0x55d5a4, 3);
+        criarEsferaSensor(posSensores.sct013, 0x2ed573, 4.5);
 
-        criarEsferaSensor(posSensores.max6675, 0xff4757);
-        criarEsferaSensor(posSensores.mpu6050, 0xaa95ef);
-        criarEsferaSensor(posSensores.hall, 0x55d5a4);
-        criarEsferaSensor(posSensores.sct013, 0x2ed573);
+        /* ---------- FLUXO DE AR (partículas sopradas pelo ventilador) ---------- */
+        const N_PART = 48;
+        const partPos = new Float32Array(N_PART * 3);
+        const partAng = [], partRaio = [], partVel = [];
+        for (let i = 0; i < N_PART; i++) {
+            partAng.push(Math.random() * Math.PI * 2);
+            partRaio.push(0.92 + Math.random() * 0.2);
+            partVel.push(0.6 + Math.random() * 0.8);
+            partPos[i * 3] = 1.0 - Math.random() * 2.5;
+        }
+        const partGeo = new THREE.BufferGeometry();
+        partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
+        const partMat = new THREE.PointsMaterial({ color: 0xbfe3ff, size: 0.045, transparent: true, opacity: 0, depthWrite: false });
+        const particulas = new THREE.Points(partGeo, partMat);
+        particulas.frustumCulled = false;
+        grupoMotor.add(particulas);
 
-        // Modo Raio-X
+        /* ---------- MODO RAIO-X ---------- */
         let modoRaioX = false;
         const btnVisao = document.getElementById('btn-visao-interna');
-        btnVisao.addEventListener('click', () => {
-            modoRaioX = !modoRaioX;
-            matCarcaça.transparent = modoRaioX;
-            matCarcaça.opacity = modoRaioX ? 0.2 : 1.0;
-            aletasGroup.children.forEach(c => { c.material.transparent = modoRaioX; c.material.opacity = modoRaioX ? 0.15 : 1.0; });
-            btnVisao.textContent = modoRaioX ? '🔬 Visão Normal' : '🔍 Modo Visão Interna (Raio-X)';
-            btnVisao.classList.toggle('btn-primary', modoRaioX);
-        });
+        function aplicarRaioX(on) {
+            matCarcaca.transparent = on; matCarcaca.opacity = on ? 0.13 : 1; matCarcaca.depthWrite = !on;
+            matAletas.transparent = on; matAletas.opacity = on ? 0.08 : 1; matAletas.depthWrite = !on;
+            matCobertura.opacity = on ? 0.06 : 0.3;
+            matCarcaca.needsUpdate = true; matAletas.needsUpdate = true;
+            btnVisao.textContent = on ? '🔬 Visão Normal' : '🔍 Modo Visão Interna (Raio-X)';
+            btnVisao.classList.toggle('btn-primary', on);
+        }
+        btnVisao.addEventListener('click', () => { modoRaioX = !modoRaioX; aplicarRaioX(modoRaioX); });
 
         document.getElementById('btn-reset-cam').addEventListener('click', () => {
-            camera.position.set(3.5, 2.2, 4.5);
-            controls.target.set(0, 0, 0);
+            camera.position.copy(CAM_INICIAL);
+            controls.target.copy(ALVO);
             controls.update();
         });
 
-        // Projeção das Etiquetas Flutuantes
+        /* ---------- ETIQUETAS FLUTUANTES + HUD ---------- */
+        const tagsDef = [
+            { el: document.getElementById('tag-max6675'), pos: posSensores.max6675 },
+            { el: document.getElementById('tag-mpu6050'), pos: posSensores.mpu6050 },
+            { el: document.getElementById('tag-hall'), pos: posSensores.hall },
+            { el: document.getElementById('tag-sct013'), pos: posSensores.sct013 }
+        ];
+        const tempV = new THREE.Vector3();
         function atualizarTags2D() {
-            const tempV = new THREE.Vector3();
-            const listaTags = [
-                { id: 'tag-max6675', pos: posSensores.max6675 },
-                { id: 'tag-mpu6050', pos: posSensores.mpu6050 },
-                { id: 'tag-hall', pos: posSensores.hall },
-                { id: 'tag-sct013', pos: posSensores.sct013 }
-            ];
-
-            listaTags.forEach(item => {
-                const tagEl = document.getElementById(item.id);
-                if (!tagEl) return;
-                tempV.copy(item.pos);
-                tempV.applyMatrix4(grupoMotor.matrixWorld);
-                tempV.project(camera);
-                const x = (tempV.x * 0.5 + 0.5) * container.clientWidth;
-                const y = (tempV.y * -0.5 + 0.5) * container.clientHeight;
-
-                if (tempV.z > 1) { tagEl.style.opacity = '0'; }
-                else { tagEl.style.opacity = '1'; tagEl.style.left = `${x}px`; tagEl.style.top = `${y}px`; }
-            });
+            for (const item of tagsDef) {
+                if (!item.el) continue;
+                tempV.copy(item.pos).applyMatrix4(grupoMotor.matrixWorld).project(camera);
+                if (tempV.z > 1) { item.el.style.opacity = '0'; continue; }
+                item.el.style.opacity = '1';
+                item.el.style.left = `${(tempV.x * 0.5 + 0.5) * W()}px`;
+                item.el.style.top = `${(tempV.y * -0.5 + 0.5) * H()}px`;
+            }
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
+        const hud = document.getElementById('hud-3d');
+        const hudDot = document.getElementById('hud-dot');
+        const hudText = document.getElementById('hud-text');
+        const num = (v, n) => (typeof v === 'number' && Number.isFinite(v)) ? v.toFixed(n) : '--';
+        const MAPA_NIVEL = {
+            ok: ['EM FUNCIONAMENTO', '#2ed573'],
+            alerta: ['ALERTA', '#ffa502'],
+            critico: ['FALHA CRÍTICA', '#ff4757'],
+            parado: ['MOTOR PARADO', '#a0a0b5'],
+            semdados: ['SEM DADOS RECENTES', '#a0a0b5']
+        };
+        function atualizarTextos(s, rodando, rpm) {
+            const [rotulo, cor] = MAPA_NIVEL[s.nivel] || MAPA_NIVEL.parado;
+            hudText.textContent = (window.demoActive ? 'SIMULAÇÃO · ' : '') + rotulo + (rodando ? ` · ${Math.round(rpm)} RPM` : '');
+            hudDot.style.background = cor; hudDot.style.color = cor;
+            hud.classList.toggle('pulsar', s.nivel === 'alerta' || s.nivel === 'critico');
+            tagsDef[0].el.textContent = `🔥 MAX6675 · ${num(s.temp, 1)} °C`;
+            tagsDef[1].el.textContent = `📳 MPU-6050 · ${num(s.vib, 2)} m/s²`;
+            tagsDef[2].el.textContent = `🔄 Hall · ${num(rodando ? rpm : (typeof s.rpm === 'number' ? s.rpm : null), 0)} RPM`;
+            tagsDef[3].el.textContent = `⚡ SCT-013 · ${num(s.corr, 2)} A`;
+        }
+
+        /* ---------- LOOP DE ANIMAÇÃO ---------- */
+        const relogio = new THREE.Clock();
+        const OMEGA_MAX = 9;           // rad/s visuais para 1750 RPM
+        let omega = 0, angulo = 0, campo = 0, acum = 1, nivelAnterior = null;
+
+        function animar() {
+            requestAnimationFrame(animar);
+            const dt = Math.min(relogio.getDelta(), 0.05);
+            const t = relogio.elapsedTime;
+            const s = window.motorState || {};
+            const rodando = !!s.running && s.nivel !== 'semdados';
+            const rpm = (typeof s.rpm === 'number' && s.rpm > 0) ? s.rpm : (rodando ? 1750 : 0);
+
+            // Aceleração / frenagem suave
+            const alvo = rodando ? Math.min(rpm / 1750, 1.6) * OMEGA_MAX : 0;
+            omega += (alvo - omega) * (1 - Math.exp(-dt * (alvo > omega ? 1.8 : 1.1)));
+            if (omega < 0.005) omega = 0;
+            const fator = omega / OMEGA_MAX;
+
+            angulo += omega * dt;
+            rotGroup.rotation.x = angulo;
+            campo += omega * 1.04 * dt;
+
+            // Campo magnético girante nas bobinas do estator
+            const corr = typeof s.corr === 'number' ? s.corr : 6;
+            const fatorCorr = rodando ? clamp(0.4 + (corr / 12) * 0.6, 0.4, 1) : 0;
+            const nivel = s.nivel || 'parado';
+            if (nivel !== nivelAnterior) {
+                const corBobina = (nivel === 'alerta' || nivel === 'critico') ? 0xff3030 : 0xff7a1a;
+                bobinas.forEach(b => b.mat.emissive.setHex(corBobina));
+                nivelAnterior = nivel;
+            }
+            for (const b of bobinas) {
+                const v = 0.5 + 0.5 * Math.cos(b.th - campo);
+                b.mat.emissiveIntensity = fatorCorr * (0.12 + 1.1 * v * v);
+            }
+
+            // Aquecimento da carcaça conforme a temperatura
+            const temp = typeof s.temp === 'number' ? s.temp : null;
+            const calor = temp === null ? 0 : clamp((temp - 40) / 50, 0, 1);
+            const alerta = nivel === 'alerta' || nivel === 'critico';
+            const pulso = alerta ? 0.7 + 0.3 * Math.sin(t * (nivel === 'critico' ? 9 : 5)) : 1;
+            matCarcaca.color.copy(COR_FRIA).lerp(COR_QUENTE, calor * 0.75);
+            matCarcaca.emissive.setRGB(calor * 0.55 * pulso, calor * 0.06 * pulso, 0);
+            matAletas.color.copy(COR_ALETA).lerp(COR_ALETA_Q, calor * 0.75);
+            matAletas.emissive.setRGB(calor * 0.35 * pulso, 0, 0);
+
+            // Vibração (tremor do conjunto proporcional à vibração medida)
+            const vib = typeof s.vib === 'number' ? s.vib : 0;
+            const amp = fator * (0.0025 + vib * 0.0035) * (nivel === 'critico' ? 1.8 : nivel === 'alerta' ? 1.4 : 1);
+            grupoMotor.position.set(0, (Math.random() - 0.5) * amp * 2, (Math.random() - 0.5) * amp * 2);
+
+            // Sensores pulsando
+            for (const e of esferas) {
+                const sc = rodando ? 1 + 0.25 * Math.sin(t * 4 + e.fase) : 1;
+                e.mesh.scale.setScalar(sc);
+            }
+
+            // Fluxo de ar
+            const arr = partGeo.attributes.position.array;
+            for (let i = 0; i < N_PART; i++) {
+                let x = arr[i * 3] - partVel[i] * fator * dt * 2.2;
+                if (x < -1.5) x = 1.0;
+                partAng[i] += fator * dt * 1.5;
+                arr[i * 3] = x;
+                arr[i * 3 + 1] = partRaio[i] * Math.cos(partAng[i]);
+                arr[i * 3 + 2] = partRaio[i] * Math.sin(partAng[i]);
+            }
+            partGeo.attributes.position.needsUpdate = true;
+            partMat.opacity = 0.55 * Math.min(fator * 1.5, 1);
+            particulas.visible = fator > 0.02;
+
+            // Textos (4x por segundo)
+            acum += dt;
+            if (acum > 0.25) { acum = 0; atualizarTextos(s, rodando, rpm); }
+
             controls.update();
-            meshEixo.rotation.x += 0.04;
-            meshRotor.rotation.x += 0.04;
+            grupoMotor.updateMatrixWorld(true);
             atualizarTags2D();
             renderer.render(scene, camera);
         }
-        animate();
+        animar();
 
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
+        function redimensionar() {
+            camera.aspect = W() / H();
             camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
+            renderer.setSize(W(), H());
+        }
+        if (typeof ResizeObserver !== 'undefined') new ResizeObserver(redimensionar).observe(container);
+        window.addEventListener('resize', redimensionar);
     })();
     </script>
 
-    <!-- SCRIPT FIREBASE + DIAGNÓSTICO DE ANOMALIAS -->
+    <!-- SCRIPT FIREBASE + DIAGNÓSTICO + BOTÕES -->
     <script type="module">
     function analisarAnomalias(dados, limitesEspecificos = {}) {
       const limites = {
@@ -628,7 +912,7 @@
           import('https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js'),
           import('https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js'),
           import('https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js')]);
-        
+
         const firebaseConfig = {
             apiKey: "AIzaSyAc6EkUGTdk7V78rl74Gs66t2mLtH1-lzY",
             authDomain: "tcc-motor-senai.firebaseapp.com",
@@ -638,7 +922,7 @@
             messagingSenderId: "964076129849",
             appId: "1:964076129849:web:2e86e2b9ee2af7ef5cc7e8"
         };
-        
+
         const ADMIN_UID = "UlOqYe5mq9Vq0IVdTWC5NCJCbK53";
         const app = initializeApp(firebaseConfig), db = getDatabase(app), auth = getAuth(app);
         const $ = id => document.getElementById(id);
@@ -647,9 +931,10 @@
         const numero = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
         const valor = (v, casas) => numero(v) === null ? '--' : numero(v).toFixed(casas);
         const idValido = id => /^[A-Za-z0-9_-]{1,40}$/.test(id);
-        
+
         let motorSelecionado = 'motor01', motores = {};
         let assinaturaAnterior = null;
+        let conectado = null;
 
         const sensores = [
             { campo: 'temperatura', elemento: 'val-temp', canvas: 'graficoTemp', casas: 1, cor: '#ff4757' },
@@ -658,6 +943,15 @@
             { campo: 'rotacaoRPM', elemento: 'val-rpm', canvas: 'graficoRPM', casas: 0, cor: '#55d5a4' }
         ];
 
+        window.aplicarTemaGraficos = () => {
+            if (typeof Chart === 'undefined') return;
+            const css = getComputedStyle(document.documentElement);
+            Chart.defaults.color = css.getPropertyValue('--text-muted').trim() || '#a0a0b5';
+            Chart.defaults.borderColor = css.getPropertyValue('--line').trim() || '#293544';
+            for (const s of sensores) if (s.chart) s.chart.update('none');
+        };
+        if (typeof Chart !== 'undefined') window.aplicarTemaGraficos();
+
         for (const s of sensores) {
             s.chart = typeof Chart === 'undefined' ? null : new Chart($(s.canvas), {
                 type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: s.cor, borderWidth: 2, tension: .25, pointRadius: 2 }] },
@@ -665,12 +959,52 @@
             });
         }
 
+        function limparGraficos() {
+            assinaturaAnterior = null;
+            for (const s of sensores) if (s.chart) { s.chart.data.labels = []; s.chart.data.datasets[0].data = []; s.chart.update('none'); }
+        }
+
+        /* ---------- LISTA DE MOTORES ---------- */
+        function renderizarLista() {
+            if (window.demoActive) return;
+            const lista = $('lista-motores');
+            const ids = Object.keys(motores).filter(idValido).sort();
+            lista.replaceChildren();
+            $('aviso-lista').textContent = ids.length ? '' : 'Nenhum motor cadastrado ainda.';
+            for (const id of ids) {
+                const m = objeto(motores[id]);
+                const nome = objeto(m.configuracoes).nomeMotor || id;
+                const d = objeto(m.dadosAtuais);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'motor-tile';
+                btn.setAttribute('aria-pressed', id === motorSelecionado);
+                const l1 = document.createElement('span'); l1.className = 'tile-id'; l1.textContent = id;
+                const l2 = document.createElement('strong'); l2.textContent = nome;
+                const l3 = document.createElement('span'); l3.className = 'tile-values';
+                l3.textContent = `${valor(d.temperatura, 1)} °C · ${valor(d.rotacaoRPM, 0)} RPM`;
+                btn.append(l1, l2, l3);
+                btn.addEventListener('click', () => selecionarMotor(id));
+                lista.append(btn);
+            }
+        }
+
+        function selecionarMotor(id) {
+            if (!idValido(id)) return;
+            motorSelecionado = id;
+            limparGraficos();
+            renderizarLista();
+            renderizarPainel();
+        }
+
+        /* ---------- PAINEL ---------- */
         function renderizarPainel() {
             if (window.demoActive) return;
 
             const motor = objeto(motores[motorSelecionado]);
             const config = objeto(motor.configuracoes);
             const dados = objeto(motor.dadosAtuais);
+            const status = objeto(motor.status);
             const limites = objeto(config.limites);
 
             if (document.activeElement !== $('nome-motor')) $('nome-motor').value = config.nomeMotor || motorSelecionado;
@@ -678,7 +1012,7 @@
             const e = objeto(config.especificacoes);
             $('especificacoes-motor').textContent = `${e.tipoAlimentacao ?? '--'} ${e.tensaoVolts ?? '--'}V | ${e.potenciaCV ?? '--'} CV | ${e.rotacaoRPM ?? '--'} RPM`;
 
-            window.renderMotorStatus(objeto(motor.status), dados);
+            const recente = window.renderMotorStatus(status, dados);
 
             const diagnostico = analisarAnomalias(dados, limites);
             const msgPainel = $('mensagem-painel');
@@ -705,6 +1039,19 @@
                 msgPainel.textContent = `Equipamento ${motorSelecionado}: Operação dentro dos parâmetros normais.`;
             }
 
+            // Alimenta o modelo 3D com os dados reais
+            const vibLida = dados.vibracao ?? dados.vibracaoAceleracaoRms;
+            const rpmLido = numero(dados.rotacaoRPM);
+            const girando = recente && (status.emOperacao === true || (rpmLido !== null && rpmLido > 30));
+            window.motorState = {
+                running: girando,
+                rpm: rpmLido ?? 0,
+                temp: numero(dados.temperatura),
+                vib: numero(vibLida) ?? 0,
+                corr: numero(dados.corrente) ?? 0,
+                nivel: !recente ? 'semdados' : diagnostico.gravidade === 'CRITICO' ? 'critico' : diagnostico.gravidade === 'ALERTA' ? 'alerta' : girando ? 'ok' : 'parado'
+            };
+
             const assinatura = JSON.stringify(dados);
             const mudou = assinatura !== assinaturaAnterior;
 
@@ -723,19 +1070,201 @@
             assinaturaAnterior = assinatura;
         }
 
+        /* ---------- LOGIN / PERMISSÕES ---------- */
+        function atualizarAdminUI() {
+            if (window.demoActive) return;
+            const user = auth.currentUser;
+            const ehAdmin = admin();
+            $('admin-info').textContent = !user ? 'Visitante' : ehAdmin ? `Administrador · ${user.email || ''}` : `${user.email || 'Conectado'} · somente leitura`;
+            $('btn-login').textContent = user ? 'Sair' : 'Entrar com Google';
+            $('btn-novo').hidden = !ehAdmin;
+            $('btn-configuracoes').hidden = !ehAdmin;
+            $('nome-motor').disabled = !ehAdmin;
+        }
+
+        const provider = new GoogleAuthProvider();
+        $('btn-login').onclick = async () => {
+            try {
+                if (auth.currentUser) await signOut(auth);
+                else await signInWithPopup(auth, provider);
+            } catch (err) {
+                if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+                    $('mensagem-painel').textContent = 'Não foi possível entrar: ' + (err?.message || err);
+                }
+            }
+        };
+        onAuthStateChanged(auth, atualizarAdminUI);
+
+        /* ---------- NOME DO EQUIPAMENTO (edição direta) ---------- */
+        $('nome-motor').addEventListener('change', async () => {
+            if (!admin()) return;
+            const nome = $('nome-motor').value.trim();
+            const st = $('status-salvamento');
+            if (!nome) { st.textContent = 'O nome não pode ficar vazio.'; return; }
+            st.textContent = 'Salvando…';
+            try {
+                await update(ref(db, `motores/${motorSelecionado}/configuracoes`), { nomeMotor: nome });
+                st.textContent = 'Nome salvo.';
+                setTimeout(() => { if (st.textContent === 'Nome salvo.') st.textContent = ''; }, 2500);
+            } catch (err) {
+                st.textContent = 'Erro ao salvar: ' + (err?.message || err);
+            }
+        });
+
+        /* ---------- ABRIR MOTOR PELO IDENTIFICADOR ---------- */
+        $('abrir-id').addEventListener('submit', ev => {
+            ev.preventDefault();
+            const id = $('motor-id').value.trim();
+            if (!idValido(id)) { $('aviso-lista').textContent = 'Identificador inválido. Use letras, números, "_" ou "-".'; return; }
+            selecionarMotor(id);
+            $('aviso-lista').textContent = motores[id] ? '' : `O motor "${id}" ainda não tem dados — aguardando a primeira leitura.`;
+        });
+
+        /* ---------- MODAL DE CONFIGURAÇÕES / CADASTRO ---------- */
+        let modoNovo = false;
+        const msgConfig = (texto, erro = false) => {
+            const el = $('mensagem-config');
+            el.textContent = texto;
+            el.style.color = erro ? 'var(--alert-red)' : 'var(--ok-green)';
+        };
+
+        function abrirModal(novo) {
+            if (!admin()) return;
+            modoNovo = novo;
+            const cfg = objeto(objeto(motores[motorSelecionado]).configuracoes);
+            const e = objeto(cfg.especificacoes);
+            $('grupo-config-id').hidden = !novo;
+            $('zona-excluir').hidden = novo;
+            $('zona-excluir').open = false;
+            $('titulo-modal').textContent = novo ? 'Cadastrar motor' : 'Configurações do motor';
+            $('config-id').value = '';
+            $('aviso-identificador').textContent = 'Use letras, números, "_" ou "-" (até 40 caracteres).';
+            $('config-nome').value = novo ? '' : (cfg.nomeMotor || motorSelecionado);
+            const tipos = ['Monofásico', 'Bifásico', 'Trifásico'];
+            $('config-alimentacao').value = !novo && tipos.includes(e.tipoAlimentacao) ? e.tipoAlimentacao : 'Trifásico';
+            $('config-tensao').value = novo ? 220 : (numero(e.tensaoVolts) ?? '');
+            $('config-potencia').value = novo ? 5 : (numero(e.potenciaCV) ?? '');
+            $('config-rotacao').value = novo ? 1750 : (numero(e.rotacaoRPM) ?? '');
+            $('confirmar-exclusao').value = '';
+            $('btn-excluir-motor').disabled = true;
+            msgConfig('');
+            $('modal-config').classList.add('aberto');
+            $('modal-config').setAttribute('aria-hidden', 'false');
+            setTimeout(() => (novo ? $('config-id') : $('config-nome')).focus(), 50);
+        }
+
+        function fecharModal() {
+            $('modal-config').classList.remove('aberto');
+            $('modal-config').setAttribute('aria-hidden', 'true');
+        }
+
+        $('btn-configuracoes').onclick = () => abrirModal(false);
+        $('btn-novo').onclick = () => abrirModal(true);
+        $('btn-fechar-modal').onclick = fecharModal;
+        $('btn-cancelar-config').onclick = fecharModal;
+        $('modal-config').addEventListener('click', ev => { if (ev.target === $('modal-config')) fecharModal(); });
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && $('modal-config').classList.contains('aberto')) fecharModal(); });
+
+        $('btn-salvar-config').onclick = async () => {
+            if (!admin()) { msgConfig('Apenas o administrador pode salvar.', true); return; }
+            const nome = $('config-nome').value.trim();
+            const tipo = $('config-alimentacao').value;
+            const tensao = Number($('config-tensao').value);
+            const potencia = Number($('config-potencia').value);
+            const rotacao = Number($('config-rotacao').value);
+
+            if (!nome) { msgConfig('Informe o nome do equipamento.', true); return; }
+            if (!Number.isFinite(tensao) || tensao < 1 || tensao > 10000) { msgConfig('Tensão inválida (1 a 10000 V).', true); return; }
+            if (!Number.isFinite(potencia) || potencia < 0.01 || potencia > 10000) { msgConfig('Potência inválida (0,01 a 10000 CV).', true); return; }
+            if (!Number.isFinite(rotacao) || rotacao < 1 || rotacao > 100000) { msgConfig('Rotação inválida (1 a 100000 RPM).', true); return; }
+
+            const btn = $('btn-salvar-config');
+            btn.disabled = true;
+            msgConfig('Salvando…');
+            try {
+                if (modoNovo) {
+                    const id = $('config-id').value.trim();
+                    if (!idValido(id)) { msgConfig('Identificador inválido. Use letras, números, "_" ou "-".', true); return; }
+                    const nova = { nomeMotor: nome, especificacoes: { tipoAlimentacao: tipo, tensaoVolts: tensao, potenciaCV: potencia, rotacaoRPM: rotacao } };
+                    const r = await runTransaction(ref(db, `motores/${id}/configuracoes`), atual => atual === null ? nova : undefined);
+                    if (!r.committed) { msgConfig('Já existe um motor com esse identificador.', true); return; }
+                    motorSelecionado = id;
+                    limparGraficos();
+                } else {
+                    await update(ref(db, `motores/${motorSelecionado}/configuracoes`), {
+                        nomeMotor: nome,
+                        'especificacoes/tipoAlimentacao': tipo,
+                        'especificacoes/tensaoVolts': tensao,
+                        'especificacoes/potenciaCV': potencia,
+                        'especificacoes/rotacaoRPM': rotacao
+                    });
+                }
+                fecharModal();
+                renderizarLista();
+                renderizarPainel();
+            } catch (err) {
+                msgConfig('Não foi possível salvar: ' + (err?.message || err), true);
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        $('confirmar-exclusao').addEventListener('input', () => {
+            $('btn-excluir-motor').disabled = $('confirmar-exclusao').value.trim() !== motorSelecionado;
+        });
+        $('btn-excluir-motor').onclick = async () => {
+            if (!admin() || $('confirmar-exclusao').value.trim() !== motorSelecionado) return;
+            if (!window.confirm(`Excluir permanentemente o motor "${motorSelecionado}" e todo o histórico?`)) return;
+            const id = motorSelecionado;
+            try {
+                await remove(ref(db, `motores/${id}`));
+                const restantes = Object.keys(motores).filter(m => m !== id && idValido(m)).sort();
+                motorSelecionado = restantes[0] || 'motor01';
+                limparGraficos();
+                fecharModal();
+                renderizarLista();
+                renderizarPainel();
+            } catch (err) {
+                msgConfig('Não foi possível excluir: ' + (err?.message || err), true);
+            }
+        };
+
+        /* ---------- ASSINATURAS DO BANCO ---------- */
         onValue(ref(db, 'motores'), snapshot => {
             if (window.demoActive) return;
             motores = objeto(snapshot.val());
+            renderizarLista();
             renderizarPainel();
+        }, err => {
+            if (window.demoActive) return;
+            $('aviso-lista').textContent = 'Sem permissão ou erro ao ler os motores: ' + (err?.message || err);
         });
 
         onValue(ref(db, '.info/connected'), snapshot => {
-            if(window.demoActive) return;
-            $('conexao').textContent = snapshot.val() === true ? 'Conectado ao banco de dados.' : 'Sem conexão com o banco de dados.';
+            conectado = snapshot.val() === true;
+            if (window.demoActive) return;
+            $('conexao').textContent = conectado ? 'Conectado ao banco de dados.' : 'Sem conexão com o banco de dados.';
         });
 
+        // Reavalia a "frescura" da leitura a cada segundo (para parar o 3D se a placa parar de enviar)
+        setInterval(() => { if (!window.demoActive) renderizarPainel(); }, 1000);
+
+        // Chamado ao voltar da demonstração para os dados reais
+        window.resumeLive = () => {
+            if (conectado !== null) $('conexao').textContent = conectado ? 'Conectado ao banco de dados.' : 'Sem conexão com o banco de dados.';
+            limparGraficos();
+            atualizarAdminUI();
+            renderizarLista();
+            renderizarPainel();
+        };
+
+        atualizarAdminUI();
+
       } catch(error) {
+        console.error('Falha ao iniciar o modo ao vivo:', error);
         window.liveStarted=false;
+        const c = document.getElementById('conexao');
+        if (c && !window.demoActive) c.textContent = 'Não foi possível conectar ao banco de dados.';
       }
     }
     window.startLive=startLive;
