@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento Industrial - Motores</title>
+    <title>Monitoramento Industrial & Manutenção - Motores SENAI</title>
 
     <!-- Bibliotecas para Gráficos e Modelo 3D -->
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
@@ -25,6 +25,7 @@
             --shadow: 0 14px 40px #0002;
             --stage-a: #2f4366;
             --stage-b: #101828;
+            --card-hover: #232338;
         }
 
         :root[data-theme="light"] {
@@ -38,6 +39,7 @@
             --shadow: 0 14px 40px #1a2a4012;
             --stage-a: #eaf1fb;
             --stage-b: #b4c5dc;
+            --card-hover: #f0f5fc;
         }
 
         * {
@@ -63,21 +65,69 @@
         button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.5; }
         input:disabled, textarea:disabled { cursor: default; -webkit-user-select: none; user-select: none; }
 
-        button, input, select { font-family: inherit; }
+        button, input, select, textarea { font-family: inherit; }
 
-        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
         .brand { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 700; letter-spacing: .08em; }
         .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; background: var(--accent-blue); color: var(--bg-color); border-radius: 9px; font-size: 22px; }
         .brand small { display: block; font-size: 10px; color: var(--text-muted); letter-spacing: .16em; font-weight: 500; margin-top: 2px; }
         .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
-        .toolbar button, .btn { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; background: var(--panel-bg); color: var(--text-main); font-weight: 600; font-size: 12px; }
+        .toolbar button, .btn { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; background: var(--panel-bg); color: var(--text-main); font-weight: 600; font-size: 12px; transition: all 0.2s ease; }
+        .toolbar button:hover, .btn:hover { border-color: var(--accent-blue); }
         .btn-primary, #demo-toggle[aria-pressed="true"], #present-toggle[aria-pressed="true"] { background: var(--accent-blue); color: #101018; border-color: var(--accent-blue); }
         .btn-secondary { background-color: #3b3b52; color: #fff; }
         :root[data-theme="light"] .btn-secondary { background-color: #dbe3ee; color: var(--text-main); }
         .btn-danger { background-color: var(--alert-red); color: white; border-color: var(--alert-red); }
 
+        /* NAVEGAÇÃO POR ABAS */
+        .tab-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 2px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 10px 18px;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: var(--panel-secondary);
+        }
+        .tab-btn.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+            background: var(--panel-bg);
+        }
+        .tab-badge {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: var(--line);
+            color: var(--text-main);
+            font-weight: bold;
+        }
+        .tab-btn.active .tab-badge {
+            background: var(--accent-blue);
+            color: #101018;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .eyebrow { font-size: 10px; letter-spacing: .2em; font-weight: 700; color: var(--accent-blue); margin: 0 0 9px; }
-        h1 { font-size: clamp(26px, 3vw, 38px); font-weight: 650; letter-spacing: -1px; margin: 0 0 6px; }
+        h1 { font-size: clamp(24px, 3vw, 36px); font-weight: 650; letter-spacing: -1px; margin: 0 0 6px; }
         .muted { color: var(--text-muted); font-size: 12px; }
         .overview { margin-bottom: 22px; }
         .overview-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
@@ -148,7 +198,7 @@
         .hud-3d.pulsar .dot { animation: pulsar 1s infinite ease-in-out; }
         @keyframes pulsar { 50% { opacity: .3; transform: scale(.8); } }
 
-        .demo-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--warn-yellow); border-radius: 9px; padding: 12px 16px; margin-bottom: 22px; background: var(--panel-secondary); color: var(--text-main); font-size: 12px; }
+        .demo-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--warn-yellow); border-radius: 99px; padding: 12px 20px; margin-bottom: 22px; background: var(--panel-secondary); color: var(--text-main); font-size: 12px; }
         .foot { display: flex; justify-content: space-between; gap: 15px; color: var(--text-muted); border-top: 1px solid var(--line); padding-top: 18px; margin-top: 34px; font-size: 10px; }
 
         .modal { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 20px; background-color: rgba(0, 0, 0, 0.75); }
@@ -185,25 +235,57 @@
         .hist-item.critico .hist-nivel { color: var(--alert-red); }
         .hist-estado { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
         .hist-estado.ativa { color: var(--alert-red); font-weight: 700; }
-        @media(max-width: 600px) { .hist-item { grid-template-columns: 1fr 1fr; } .hist-estado { white-space: normal; } }
 
-        /* Modo apresentação */
-        body.apresentacao .open-id, body.apresentacao .admin-controls, body.apresentacao #btn-novo,
-        body.apresentacao #aviso-lista, body.apresentacao #conexao, body.apresentacao .foot { display: none !important; }
-        body.apresentacao .valor-display { font-size: 52px; }
-        body.apresentacao .container-3d-box { height: 560px; }
+        /* ESTILOS DA ABA DE MANUTENÇÃO & DIAGNÓSTICO */
+        .manutencao-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .manutencao-full { grid-column: 1 / -1; }
+        .health-score-box { display: flex; align-items: center; gap: 20px; background: var(--panel-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--line); }
+        .score-circle {
+            width: 90px; height: 90px; border-radius: 50%; display: grid; place-items: center;
+            font-size: 24px; font-weight: 800; border: 6px solid var(--ok-green); color: var(--ok-green);
+            flex-shrink: 0; box-shadow: 0 0 15px currentColor;
+        }
+        .score-circle.warn { border-color: var(--warn-yellow); color: var(--warn-yellow); }
+        .score-circle.crit { border-color: var(--alert-red); color: var(--alert-red); }
 
-        [hidden] { display: none !important; }
-        @media(max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media(max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } .topbar, .header { flex-direction: column; align-items: stretch; } .container-3d-box { height: 340px; } }
+        .cause-card { background: var(--panel-secondary); border-radius: 9px; padding: 16px; border: 1px solid var(--line); margin-bottom: 12px; position: relative; }
+        .cause-card.critico { border-left: 5px solid var(--alert-red); }
+        .cause-card.alerta { border-left: 5px solid var(--warn-yellow); }
+        .cause-card.normal { border-left: 5px solid var(--ok-green); }
+        .cause-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .cause-title { font-size: 14px; font-weight: 700; }
+        .cause-badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .badge-crit { background: rgba(255, 71, 87, 0.2); color: var(--alert-red); border: 1px solid var(--alert-red); }
+        .badge-warn { background: rgba(255, 165, 2, 0.2); color: var(--warn-yellow); border: 1px solid var(--warn-yellow); }
+        .badge-ok { background: rgba(46, 213, 115, 0.2); color: var(--ok-green); border: 1px solid var(--ok-green); }
+
+        .cause-list { margin: 8px 0 0 0; padding-left: 18px; font-size: 12px; color: var(--text-muted); }
+        .cause-list li { margin-bottom: 6px; }
+        .cause-list strong { color: var(--text-main); }
+
+        .checklist-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--panel-secondary); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--line); font-size: 13px; }
+        .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); margin-top: 2px; }
+        .checklist-item label { cursor: pointer; flex: 1; }
+
+        .loto-banner { background: rgba(255, 71, 87, 0.12); border: 1px solid var(--alert-red); border-radius: 10px; padding: 16px; margin-between: 20px; display: flex; gap: 14px; align-items: flex-start; }
+        .loto-icon { font-size: 28px; }
+        .loto-content h4 { margin: 0 0 4px; color: var(--alert-red); font-size: 14px; }
+        .loto-content p { margin: 0; font-size: 12px; color: var(--text-muted); }
+
+        .os-textarea { width: 100%; height: 220px; background: var(--panel-secondary); color: var(--text-main); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; margin-top: 10px; outline: none; }
+
+        @media(max-width: 1100px) { .dashboard-grid, .manutencao-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media(max-width: 768px) { .manutencao-grid { grid-template-columns: 1fr; } }
+        @media(max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } .topbar, .header { flex-direction: column; align-items: stretch; } .container-3d-box { height: 340px; } .hist-item { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 
 <body>
+    <!-- TOPBAR PRINCIPAL -->
     <nav class="topbar" aria-label="Controles do painel">
         <div class="brand">
             <span class="brand-mark" aria-hidden="true">≋</span>
-            <div>MOTOR<span style="color:var(--accent-blue)"> / </span>MONITOR<small>SENAI · MONITORAMENTO INDUSTRIAL</small></div>
+            <div>MOTOR<span style="color:var(--accent-blue)"> / </span>MONITOR<small>SENAI · MONITORAMENTO & DIAGNÓSTICO INDUSTRIAL</small></div>
         </div>
         <div class="toolbar">
             <button id="theme-toggle" type="button">☀ Tema claro</button>
@@ -212,24 +294,36 @@
         </div>
     </nav>
 
+    <!-- NAVEGAÇÃO DE ABAS DA APLICAÇÃO -->
+    <div class="tab-nav" role="tablist">
+        <button type="button" class="tab-btn active" id="tab-btn-telemetria" onclick="switchTab('telemetria')">
+            📊 Telemetria & Modelo 3D
+        </button>
+        <button type="button" class="tab-btn" id="tab-btn-manutencao" onclick="switchTab('manutencao')">
+            🛠️ Manutenção & Diagnóstico Ao Vivo <span class="tab-badge" id="badge-anomalias">0 Alertas</span>
+        </button>
+    </div>
+
+    <!-- FAIXA DE DEMONSTRAÇÃO -->
     <div id="demo-strip" class="demo-strip" hidden role="status">
-        <div><strong>DADOS SIMULADOS</strong> · Demonstração local. Nenhuma leitura é enviada ao banco.</div>
-        <label>Cenário
-            <select id="demo-scenario">
-                <option value="normal">Em funcionamento</option>
-                <option value="alerta">Temperatura elevada</option>
-                <option value="parado">Motor parado</option>
-                <option value="vibracao">Falha de vibração</option>
+        <div><strong>DADOS SIMULADOS</strong> · Modos interativos de teste mecânico e elétrico.</div>
+        <label>Cenário de Teste:
+            <select id="demo-scenario" style="background:var(--panel-bg); color:var(--text-main); border:1px solid var(--line); border-radius:6px; padding:4px 8px; margin-left:6px;">
+                <option value="normal">Em funcionamento normal</option>
+                <option value="alerta">Temperatura elevada (Sobreaquecimento)</option>
+                <option value="vibracao">Falha de vibração (Desbalanceamento/Pé Manco)</option>
+                <option value="parado">Motor parado (Desligado)</option>
             </select>
         </label>
     </div>
 
+    <!-- SEÇÃO DE APRESENTAÇÃO DO EQUIPAMENTO -->
     <section class="overview" aria-labelledby="titulo-visao">
         <div class="overview-heading">
             <div>
-                <p class="eyebrow">SENAI · MONITORAMENTO INDUSTRIAL</p>
+                <p class="eyebrow">SENAI · ENGENHARIA DE MANUTENÇÃO PREVENTIVA</p>
                 <h1 id="titulo-visao">Cada sinal conta.</h1>
-                <p class="muted">Acompanhe a condição do motor, da temperatura à rotação.</p>
+                <p class="muted">Monitoramento preditivo da condição de operação e apoio a diagnósticos mecânicos e elétricos.</p>
             </div>
             <button type="button" class="btn btn-primary" id="btn-novo" hidden>Cadastrar motor</button>
         </div>
@@ -245,6 +339,7 @@
 
     <p id="mensagem-painel" class="muted" role="status">Carregando motor01…</p>
 
+    <!-- CABEÇALHO COM DADOS DO MOTOR -->
     <header class="header">
         <div class="motor-title">
             <label for="nome-motor">NOME DO EQUIPAMENTO:</label>
@@ -264,84 +359,164 @@
         </div>
     </header>
 
-    <div class="section-label">
-        <h2>Telemetria e Modelo 3D</h2>
-        <span id="reading-age">Aguardando primeira leitura</span>
+    <!-- ==================== ABA 1: TELEMETRIA & MODELO 3D ==================== -->
+    <div id="tab-telemetria" class="tab-content active">
+        <div class="section-label">
+            <h2>Telemetria e Modelo 3D Interativo</h2>
+            <span id="reading-age">Aguardando primeira leitura</span>
+        </div>
+
+        <main class="dashboard-grid">
+            <!-- CARTÃO DO MODELO 3D PROCEDURAL -->
+            <section class="card card-3d">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 15px; color: var(--accent-blue);">Visualização 3D do Motor & Sensores</h2>
+                        <span class="muted" style="font-size: 11px;">Arraste para girar · Role para zoom · Clique em Raio-X para ver o interior</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" id="btn-visao-interna" class="btn btn-secondary">🔍 Modo Visão Interna (Raio-X)</button>
+                        <button type="button" id="btn-sensores" class="btn btn-secondary" aria-pressed="true">📡 Ocultar sensores</button>
+                        <button type="button" id="btn-reset-cam" class="btn btn-secondary">🎥 Resetar Câmera</button>
+                    </div>
+                </div>
+
+                <div id="canvas-3d-container" class="container-3d-box">
+                    <div id="hud-3d" class="hud-3d"><span id="hud-dot" class="dot"></span><span id="hud-text">Aguardando dados</span></div>
+                    <!-- Marcadores Flutuantes 3D -->
+                    <div id="tag-max6675" class="sensor-tag-3d" style="border-color: #ff4757;">🔥 MAX6675 · --</div>
+                    <div id="tag-mpu6050" class="sensor-tag-3d" style="border-color: #aa95ef;">📳 MPU-6050 · --</div>
+                    <div id="tag-hall" class="sensor-tag-3d" style="border-color: #55d5a4;">🔄 Hall · --</div>
+                    <div id="tag-sct013" class="sensor-tag-3d" style="border-color: #2ed573;">⚡ SCT-013 · --</div>
+                </div>
+            </section>
+
+            <!-- CARDS DE SENSORES COM GRÁFICOS -->
+            <section class="card" style="border-top: 4px solid var(--alert-red);">
+                <h2>Temperatura</h2>
+                <div><span class="valor-display" id="val-temp">--</span><span class="unidade">°C</span></div>
+                <div class="chart-container"><canvas id="graficoTemp"></canvas></div>
+            </section>
+
+            <section class="card" style="border-top: 4px solid var(--ok-green);">
+                <h2>Corrente (RMS)</h2>
+                <div><span class="valor-display" id="val-corrente">--</span><span class="unidade">A</span></div>
+                <div class="chart-container"><canvas id="graficoCorrente"></canvas></div>
+            </section>
+
+            <section class="card" style="border-top: 4px solid var(--warn-yellow);">
+                <h2>Vibração · aceleração RMS</h2>
+                <div><span class="valor-display" id="val-vibracao">--</span><span class="unidade">m/s²</span></div>
+                <div class="chart-container"><canvas id="graficoVibracao"></canvas></div>
+            </section>
+
+            <section class="card">
+                <h2>Rotação medida</h2>
+                <div><span class="valor-display" id="val-rpm">--</span><span class="unidade">RPM</span></div>
+                <div class="chart-container"><canvas id="graficoRPM"></canvas></div>
+            </section>
+
+            <!-- HISTÓRICO DE FALHAS -->
+            <section class="card card-historico" aria-labelledby="hist-titulo">
+                <div class="hist-topo">
+                    <div>
+                        <h2 class="hist-titulo" id="hist-titulo">Histórico de falhas</h2>
+                        <span class="muted">Registra alertas e falhas críticas · apagado automaticamente a cada 1 hora</span>
+                    </div>
+                    <div class="hist-resumo">
+                        <span class="hist-chip crit" id="hist-crit">0 críticas</span>
+                        <span class="hist-chip alerta" id="hist-alerta">0 alertas</span>
+                        <span class="hist-chip" id="hist-reset">Próximo reset em --:--</span>
+                    </div>
+                </div>
+                <div id="hist-lista" class="hist-lista"></div>
+            </section>
+        </main>
     </div>
 
-    <main class="dashboard-grid">
-        <!-- CARTÃO DO MODELO 3D PROCEDURAL -->
-        <section class="card card-3d">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <h2 style="margin: 0; font-size: 15px; color: var(--accent-blue);">Visualização 3D do Motor & Sensores</h2>
-                    <span class="muted" style="font-size: 11px;">Arraste para girar · Role para zoom · Clique em Raio-X para ver o interior</span>
+    <!-- ==================== ABA 2: MANUTENÇÃO & DIAGNÓSTICO AO VIVO ==================== -->
+    <div id="tab-manutencao" class="tab-content">
+        <div class="section-label">
+            <h2>Diagnóstico da Saúde do Motor & Guia do Operador</h2>
+            <span>Análise preditiva em tempo real baseada nos limites de engenharia</span>
+        </div>
+
+        <main class="manutencao-grid">
+            <!-- PAINEL SUPERIOR: SAÚDE DA MÁQUINA -->
+            <section class="card manutencao-full">
+                <div class="health-score-box">
+                    <div id="health-circle" class="score-circle">100%</div>
+                    <div>
+                        <h3 style="margin:0 0 6px 0; font-size:18px;" id="health-title">Condição Normal de Operação</h3>
+                        <p style="margin:0; font-size:13px; color:var(--text-muted);" id="health-desc">Todos os parâmetros de vibração, corrente, temperatura e velocidade estão dentro das especificações normais do fabricante.</p>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" id="btn-visao-interna" class="btn btn-secondary">🔍 Modo Visão Interna (Raio-X)</button>
-                    <button type="button" id="btn-sensores" class="btn btn-secondary" aria-pressed="true">📡 Ocultar sensores</button>
-                    <button type="button" id="btn-reset-cam" class="btn btn-secondary">🎥 Resetar Câmera</button>
+            </section>
+
+            <!-- COLUNA ESQUERDA: ANÁLISE DE CAUSA RAIZ (TEMPO REAL) -->
+            <section class="card">
+                <h2 style="font-size: 15px; color: var(--accent-blue); margin-bottom: 16px;">🔍 Diagnóstico de Causa Raiz & Falhas Prováveis</h2>
+                <div id="container-causas-raiz">
+                    <!-- Gerado Dinamicamente -->
                 </div>
-            </div>
+            </section>
 
-            <div id="canvas-3d-container" class="container-3d-box">
-                <div id="hud-3d" class="hud-3d"><span id="hud-dot" class="dot"></span><span id="hud-text">Aguardando dados</span></div>
-                <!-- Marcadores Flutuantes 3D -->
-                <div id="tag-max6675" class="sensor-tag-3d" style="border-color: #ff4757;">🔥 MAX6675 · --</div>
-                <div id="tag-mpu6050" class="sensor-tag-3d" style="border-color: #aa95ef;">📳 MPU-6050 · --</div>
-                <div id="tag-hall" class="sensor-tag-3d" style="border-color: #55d5a4;">🔄 Hall · --</div>
-                <div id="tag-sct013" class="sensor-tag-3d" style="border-color: #2ed573;">⚡ SCT-013 · --</div>
-            </div>
-        </section>
-
-        <!-- CARDS DE SENSORES -->
-        <section class="card" style="border-top: 4px solid var(--alert-red);">
-            <h2>Temperatura</h2>
-            <div><span class="valor-display" id="val-temp">--</span><span class="unidade">°C</span></div>
-            <div class="chart-container"><canvas id="graficoTemp"></canvas></div>
-        </section>
-
-        <section class="card" style="border-top: 4px solid var(--ok-green);">
-            <h2>Corrente (RMS)</h2>
-            <div><span class="valor-display" id="val-corrente">--</span><span class="unidade">A</span></div>
-            <div class="chart-container"><canvas id="graficoCorrente"></canvas></div>
-        </section>
-
-        <section class="card" style="border-top: 4px solid var(--warn-yellow);">
-            <h2>Vibração · aceleração RMS</h2>
-            <div><span class="valor-display" id="val-vibracao">--</span><span class="unidade">m/s²</span></div>
-            <div class="chart-container"><canvas id="graficoVibracao"></canvas></div>
-        </section>
-
-        <section class="card">
-            <h2>Rotação medida</h2>
-            <div><span class="valor-display" id="val-rpm">--</span><span class="unidade">RPM</span></div>
-            <div class="chart-container"><canvas id="graficoRPM"></canvas></div>
-        </section>
-
-        <!-- HISTÓRICO DE FALHAS -->
-        <section class="card card-historico" aria-labelledby="hist-titulo">
-            <div class="hist-topo">
-                <div>
-                    <h2 class="hist-titulo" id="hist-titulo">Histórico de falhas</h2>
-                    <span class="muted">Registra alertas e falhas críticas · apagado automaticamente a cada 1 hora</span>
+            <!-- COLUNA DIREITA: CHECKLIST E RECOMENDAÇÕES DO OPERADOR -->
+            <section class="card">
+                <h2 style="font-size: 15px; color: var(--accent-blue); margin-bottom: 16px;">📋 Checklist de Verificação do Operador</h2>
+                <p class="muted" style="margin-top:-10px; margin-bottom:14px;">Realize estas ações preventivas antes de solicitar o chamado de um técnico especializado:</p>
+                
+                <div id="checklist-container">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="chk-aletas" onchange="atualizarProgressoChecklist()">
+                        <label for="chk-aletas"><strong>1. Inspeção de Dissipação Térmica:</strong> Inspecionar e limpar as aletas da carcaça e a grelha traseira do ventilador para remover poeira/sujeira acumulada.</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="chk-parafusos" onchange="atualizarProgressoChecklist()">
+                        <label for="chk-parafusos"><strong>2. Aperto Mecânico na Base:</strong> Checar o aperto dos parafusos de fixação dos pés do motor na bancada e o alinhamento com a carga acoplada.</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="chk-eixo" onchange="atualizarProgressoChecklist()">
+                        <label for="chk-eixo"><strong>3. Teste Manual de Livre Rotação:</strong> Com a energia desalimentada, verificar com as mãos se o eixo e o rolo acoplado giram sem raspagem ou travamento mecânico.</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="chk-tensao" onchange="atualizarProgressoChecklist()">
+                        <label for="chk-tensao"><strong>4. Verificação Elétrica do Painel:</strong> Conferir no medidor do painel local a estabilidade da tensão trifásica da rede (220 V) e ausência de queda de fase.</label>
+                    </div>
                 </div>
-                <div class="hist-resumo">
-                    <span class="hist-chip crit" id="hist-crit">0 críticas</span>
-                    <span class="hist-chip alerta" id="hist-alerta">0 alertas</span>
-                    <span class="hist-chip" id="hist-reset">Próximo reset em --:--</span>
+                <p class="muted" id="chk-progresso" style="margin-top: 10px; font-weight: bold;">Progresso das checagens: 0 de 4 concluídas</p>
+
+                <!-- BANNER DE SEGURANÇA LOTO -->
+                <div class="loto-banner" style="margin-top: 20px;">
+                    <div class="loto-icon">🔒</div>
+                    <div class="loto-content">
+                        <h4>PROTOCOLO DE SEGURANÇA LOTO (Lockout / Tagout)</h4>
+                        <p>Antes de qualquer intervenção mecânica nas aletas ou acoplamento, <strong>desligue o disjuntor principal</strong>, bloqueie a chave seccionadora com cadeado e confirme a ausência total de tensão elétrica.</p>
+                    </div>
                 </div>
-            </div>
-            <div id="hist-lista" class="hist-lista"></div>
-        </section>
-    </main>
+            </section>
+
+            <!-- GERADOR DE RELATÓRIO DE ORDEM DE SERVIÇO (FULL WIDTH) -->
+            <section class="card manutencao-full">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2 style="margin:0; font-size:15px; color:var(--accent-blue);">📄 Relatório Técnico para Abertura de O.S. (Ordem de Serviço)</h2>
+                        <span class="muted">Relatório pré-formatado com os dados atuais de telemetria e checagens do operador</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="copiarRelatorioOS()">📋 Copiar Relatório de O.S.</button>
+                </div>
+                <textarea id="os-relatorio-texto" class="os-textarea" readonly></textarea>
+                <span id="feedback-copia" class="muted" style="margin-top:6px; color:var(--ok-green);"></span>
+            </section>
+        </main>
+    </div>
 
     <footer class="foot">
-        <span>PROJETO SENAI / Monitoramento de condição</span>
-        <span>Gráficos desta sessão · Indicadores sujeitos à calibração dos sensores</span>
+        <span>PROJETO SENAI / Monitoramento de Condição & Manutenção Preditiva</span>
+        <span>Gráficos e Indicadores sujeitos à calibração dos sensores da bancada</span>
     </footer>
 
-    <!-- JANELA DE CONFIGURAÇÕES -->
+    <!-- JANELA MODAL DE CONFIGURAÇÕES -->
     <div id="modal-config" class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-modal" aria-hidden="true">
         <div class="modal-conteudo">
             <div class="modal-cabecalho">
@@ -386,6 +561,51 @@
         </div>
     </div>
 
+    <!-- SCRIPT DE NAVEGAÇÃO ENTRE ABAS -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const selectedBtn = document.getElementById(`tab-btn-${tabId}`);
+            const selectedContent = document.getElementById(`tab-${tabId}`);
+            
+            if (selectedBtn) selectedBtn.classList.add('active');
+            if (selectedContent) selectedContent.classList.add('active');
+            
+            // Força o redimensionamento dos gráficos e Three.js ao alternar abas
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        }
+
+        function atualizarProgressoChecklist() {
+            const chks = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+            let marcados = 0;
+            chks.forEach(c => { if (c.checked) marcados++; });
+            const p = document.getElementById('chk-progresso');
+            if (p) p.textContent = `Progresso das checagens: ${marcados} de ${chks.length} concluídas`;
+            if (typeof window.gerarTextoRelatorioOS === 'function') window.gerarTextoRelatorioOS();
+        }
+
+        function copiarRelatorioOS() {
+            const txtArea = document.getElementById('os-relatorio-texto');
+            if (!txtArea) return;
+            txtArea.select();
+            txtArea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                const feedback = document.getElementById('feedback-copia');
+                if (feedback) {
+                    feedback.textContent = '✓ Relatório de Ordem de Serviço copiado para a área de transferência!';
+                    setTimeout(() => { feedback.textContent = ''; }, 4000);
+                }
+            } catch (err) {
+                console.error('Erro ao copiar texto:', err);
+            }
+        }
+    </script>
+
     <!-- SCRIPT DE DEMONSTRAÇÃO, TEMA E APRESENTAÇÃO -->
     <script>
     (() => {
@@ -402,14 +622,14 @@
             corrAlerta: limitesEspecificos.correnteAlerta ?? 12.0,
             corrCritica: limitesEspecificos.correnteCritica ?? 15.0
           };
-    
+        
           const anomalias = [];
           let gravidadeMaxima = 'OK';
-    
+        
           const temp = typeof dados.temperatura === 'number' ? dados.temperatura : null;
           const vib = typeof dados.vibracao === 'number' ? dados.vibracao : (dados.vibracaoAceleracaoRms ?? null);
           const corr = typeof dados.corrente === 'number' ? dados.corrente : null;
-    
+        
           if (temp !== null) {
             if (temp >= limites.tempCritica) {
               anomalias.push({ sensor: 'temp', nivel: 'CRITICO', msg: `SOBRETEMPERATURA CRÍTICA: ${temp.toFixed(1)} °C (Limite: ${limites.tempCritica} °C)` });
@@ -419,7 +639,7 @@
               if (gravidadeMaxima !== 'CRITICO') gravidadeMaxima = 'ALERTA';
             }
           }
-    
+        
           if (vib !== null) {
             if (vib >= limites.vibCritica) {
               anomalias.push({ sensor: 'vib', nivel: 'CRITICO', msg: `VIBRAÇÃO EXCESSIVA / DESBALANCEAMENTO: ${vib.toFixed(2)} m/s² (Limite: ${limites.vibCritica} m/s²)` });
@@ -429,7 +649,7 @@
               if (gravidadeMaxima !== 'CRITICO') gravidadeMaxima = 'ALERTA';
             }
           }
-    
+        
           if (corr !== null && corr > 0.5) {
             if (corr >= limites.corrCritica) {
               anomalias.push({ sensor: 'corr', nivel: 'CRITICO', msg: `SOBRECORRENTE CRÍTICA (SOBRECARGA): ${corr.toFixed(2)} A (Limite: ${limites.corrCritica} A)` });
@@ -439,11 +659,222 @@
               if (gravidadeMaxima !== 'CRITICO') gravidadeMaxima = 'ALERTA';
             }
           }
-    
+        
           return { gravidade: gravidadeMaxima, falhas: anomalias };
         };
 
-        /* ---------- RÓTULO E PAINEL DO DIAGNÓSTICO (simulação e dados reais) ---------- */
+        /* ---------- DIAGNÓSTICO EM TEMPO REAL & CAUSA RAIZ (ABA MANUTENÇÃO) ---------- */
+        window.atualizarPainelManutencao = function(dados, diag, motorNome = 'Motor do Rolo de Água') {
+            const containerCausas = $('container-causas-raiz');
+            const circle = $('health-circle');
+            const hTitle = $('health-title');
+            const hDesc = $('health-desc');
+            const badgeTab = $('badge-anomalias');
+            
+            if (!containerCausas || !circle) return;
+
+            const temp = typeof dados.temperatura === 'number' ? dados.temperatura : null;
+            const vib = typeof dados.vibracao === 'number' ? dados.vibracao : (dados.vibracaoAceleracaoRms ?? null);
+            const corr = typeof dados.corrente === 'number' ? dados.corrente : null;
+            const rpm = typeof dados.rotacaoRPM === 'number' ? dados.rotacaoRPM : null;
+
+            let numAnomalias = diag.falhas.length;
+            if (badgeTab) {
+                badgeTab.textContent = numAnomalias === 0 ? '0 Alertas' : `${numAnomalias} ${numAnomalias === 1 ? 'Anomalia' : 'Anomalias'}`;
+                badgeTab.style.background = diag.gravidade === 'CRITICO' ? 'var(--alert-red)' : diag.gravidade === 'ALERTA' ? 'var(--warn-yellow)' : 'var(--line)';
+                badgeTab.style.color = diag.gravidade === 'OK' ? 'var(--text-main)' : '#101018';
+            }
+
+            // Atualização do Indicador de Saúde Geral
+            if (diag.gravidade === 'CRITICO') {
+                circle.textContent = '35%';
+                circle.className = 'score-circle crit';
+                hTitle.textContent = '⚠️ Condição Crítica - Intervenção Necessária';
+                hDesc.textContent = 'Detecção de parâmetros operacionais fora das margens de segurança de engenharia. Risco iminente de dano severo ou parada não planejada.';
+            } else if (diag.gravidade === 'ALERTA') {
+                circle.textContent = '70%';
+                circle.className = 'score-circle warn';
+                hTitle.textContent = '⚠️ Condição de Alerta - Manutenção Preventiva';
+                hDesc.textContent = 'O equipamento apresenta pequenas anomalias operacionais. Recomenda-se realizar inspeção prévia no local.';
+            } else {
+                circle.textContent = '100%';
+                circle.className = 'score-circle';
+                hTitle.textContent = '✓ Condição Normal de Operação';
+                hDesc.textContent = 'Todos os parâmetros operacionais (Temperatura, Vibração, Corrente e Rotação) encontram-se dentro da faixa recomendada.';
+            }
+
+            // Montagem das Placas de Diagnóstico de Causa Raiz
+            containerCausas.replaceChildren();
+
+            const causasDef = [];
+
+            // 1. ANÁLISE DE TEMPERATURA
+            if (temp !== null) {
+                if (temp >= 85.0) {
+                    causasDef.push({
+                        titulo: '🔥 Sobretemperatura Crítica (MAX6675)',
+                        nivel: 'critico',
+                        badgeText: 'CRÍTICO · ' + temp.toFixed(1) + ' °C',
+                        causas: [
+                            '<strong>Acúmulo de Sujeira / Poeira nas Aletas:</strong> Obstrução das aberturas de ventilação impede a convecção térmica natural.',
+                            '<strong>Bloqueio na Tampa Defletora Traseira:</strong> A grelha de aspiração do ventilador pode estar tampada por resíduos industriais.',
+                            '<strong>Sobrecarga Mecânica Contínua:</strong> O equipamento acoplado exige mais torque do que a potência nominal do motor (5 CV).',
+                            '<strong>Desgaste por Falta de Lubrificação nos Rolamentos:</strong> Atrito seco gera sobreaquecimento direto nos mancais.'
+                        ]
+                    });
+                } else if (temp >= 70.0) {
+                    causasDef.push({
+                        titulo: '🔥 Temperatura Elevada (MAX6675)',
+                        nivel: 'alerta',
+                        badgeText: 'ALERTA · ' + temp.toFixed(1) + ' °C',
+                        causas: [
+                            '<strong>Restrição Parcial do Fluxo de Ar:</strong> Sujeira incipiente nas aletas do estator.',
+                            '<strong>Ciclo de Trabalho Intenso / Temperatura Ambiente Alta:</strong> Operação próxima ao limite térmico recomendado.'
+                        ]
+                    });
+                }
+            }
+
+            // 2. ANÁLISE DE VIBRAÇÃO
+            if (vib !== null) {
+                if (vib >= 7.1) {
+                    causasDef.push({
+                        titulo: '📳 Vibração RMS Crítica (MPU-6050)',
+                        nivel: 'critico',
+                        badgeText: 'CRÍTICO · ' + vib.toFixed(2) + ' m/s²',
+                        causas: [
+                            '<strong>Desaperto nos Parafusos de Fixação (Pé Manco):</strong> Afrouxamento das porcas de fixação do motor na base mecânica.',
+                            '<strong>Desbalanceamento Severo do Rotor:</strong> Perda de peso ou sujeira acumulada de forma assimétrica na ventoinha/acoplamento.',
+                            '<strong>Desalinhamento Angular / Paralelo:</strong> Desalinhamento entre o eixo do motor e a carga acoplada.',
+                            '<strong>Pistas Danificadas nos Rolamentos:</strong> Cavitação ou fissuras nas esferas/pistas do rolamento dianteiro.'
+                        ]
+                    });
+                } else if (vib >= 4.5) {
+                    causasDef.push({
+                        titulo: '📳 Vibração Acima do Normal (MPU-6050)',
+                        nivel: 'alerta',
+                        badgeText: 'ALERTA · ' + vib.toFixed(2) + ' m/s²',
+                        causas: [
+                            '<strong>Pequeno Desaperto na Base:</strong> Recomenda-se rebarbar e dar aperto nos parafusos dos pés do motor.',
+                            '<strong>Desgaste no Acoplamento Elástico:</strong> Folga nas buchas ou elementos de borracha do acoplamento.'
+                        ]
+                    });
+                }
+            }
+
+            // 3. ANÁLISE DE CORRENTE
+            if (corr !== null && corr > 0.5) {
+                if (corr >= 15.0) {
+                    causasDef.push({
+                        titulo: '⚡ Sobrecorrente Crítica / Sobre-elevação (SCT-013)',
+                        nivel: 'critico',
+                        badgeText: 'CRÍTICO · ' + corr.toFixed(2) + ' A',
+                        causas: [
+                            '<strong>Esforço Mecânico Excessivo:</strong> Rolo/carga mecânica engrenada apresentando forte rigidez ou travamento.',
+                            '<strong>Queda / Subtensão na Rede Elétrica:</strong> Queda de tensão força o aumento de corrente para manter a potência de torque.',
+                            '<strong>Assimetria / Falta de Fase:</strong> Operação bifásica ou desequilíbrio significativo de tensão no painel elétrico.'
+                        ]
+                    });
+                } else if (corr >= 12.0) {
+                    causasDef.push({
+                        titulo: '⚡ Corrente Acima da Nominal (SCT-013)',
+                        nivel: 'alerta',
+                        badgeText: 'ALERTA · ' + corr.toFixed(2) + ' A',
+                        causas: [
+                            '<strong>Carga Mecânica Elevada:</strong> Verifique se a esteira ou o rolo de água tem atrito aumentado.',
+                            '<strong>Flutuação na Tensão Elétrica:</strong> Oscilações normais da concessionária ou subdimensionamento de fiação.'
+                        ]
+                    });
+                }
+            }
+
+            // Se não houver anomalias, exibir status verde
+            if (causasDef.length === 0) {
+                containerCausas.replaceChildren();
+                const cardOk = document.createElement('div');
+                cardOk.className = 'cause-card normal';
+                cardOk.innerHTML = `
+                    <div class="cause-header">
+                        <span class="cause-title">✅ Todos os Sensores em Conformidade</span>
+                        <span class="cause-badge badge-ok">SISTEMA OK</span>
+                    </div>
+                    <p style="font-size:12px; color:var(--text-muted); margin:0;">
+                        Não foram detectados desvios nas medições de temperatura, vibração, corrente ou rotação. Nenhuma ação corretiva urgente necessária.
+                    </p>
+                `;
+                containerCausas.append(cardOk);
+            } else {
+                for (const item of causasDef) {
+                    const card = document.createElement('div');
+                    card.className = `cause-card ${item.nivel}`;
+                    let htmlList = item.causas.map(c => `<li>${c}</li>`).join('');
+                    card.innerHTML = `
+                        <div class="cause-header">
+                            <span class="cause-title">${item.titulo}</span>
+                            <span class="cause-badge ${item.nivel === 'critico' ? 'badge-crit' : 'badge-warn'}">${item.badgeText}</span>
+                        </div>
+                        <ul class="cause-list">${htmlList}</ul>
+                    `;
+                    containerCausas.append(card);
+                }
+            }
+
+            // Atualiza o texto da Ordem de Serviço
+            window.gerarTextoRelatorioOS(dados, diag, motorNome);
+        };
+
+        window.gerarTextoRelatorioOS = function(dados = {}, diag = {falhas:[]}, motorNome = 'Motor Indução') {
+            const txtArea = $('os-relatorio-texto');
+            if (!txtArea) return;
+
+            const agora = new Date().toLocaleString('pt-BR');
+            const chks = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+            
+            const item1 = chks[0]?.checked ? '[X]' : '[ ]';
+            const item2 = chks[1]?.checked ? '[X]' : '[ ]';
+            const item3 = chks[2]?.checked ? '[X]' : '[ ]';
+            const item4 = chks[3]?.checked ? '[X]' : '[ ]';
+
+            const temp = typeof dados.temperatura === 'number' ? dados.temperatura.toFixed(1) + ' °C' : '--';
+            const vib = typeof dados.vibracao === 'number' ? dados.vibracao.toFixed(2) + ' m/s²' : '--';
+            const corr = typeof dados.corrente === 'number' ? dados.corrente.toFixed(2) + ' A' : '--';
+            const rpm = typeof dados.rotacaoRPM === 'number' ? dados.rotacaoRPM.toFixed(0) + ' RPM' : '--';
+
+            let textoFalhas = 'Nenhuma anomalia crítica reportada pelos sensores no momento.';
+            if (diag.falhas && diag.falhas.length > 0) {
+                textoFalhas = diag.falhas.map(f => ` - [${f.nivel}] ${f.msg}`).join('\n');
+            }
+
+            const textoRelatorio = 
+`===================================================================
+RELATÓRIO DE MANUTENÇÃO PREVENTIVA E DIAGNÓSTICO DE O.S. - SENAI
+===================================================================
+Data / Hora da Emissão: ${agora}
+Equipamento: ${motorNome}
+Especificação: Trifásico 220V | 5 CV | 1750 RPM Nominal
+
+1. DADOS DE TELEMETRIA DO SENSOR NO MOMENTO:
+   - Temperatura da Carcaça (MAX6675): ${temp}
+   - Vibração Vetorial RMS (MPU-6050): ${vib}
+   - Corrente Alternada RMS (SCT-013): ${corr}
+   - Velocidade Medida (Sensor Hall):  ${rpm}
+
+2. ANOMALIAS DETECTADAS PELO SISTEMA PREDITIVO:
+${textoFalhas}
+
+3. CHECAGENS PRÉVIAS EXECUTADAS PELO OPERADOR (CHECKLIST):
+   ${item1} 1. Limpeza de aletas e grelha traseira de ventilação.
+   ${item2} 2. Inspeção de aperto mecânico dos parafusos de fixação na base.
+   ${item3} 3. Teste manual de rotação sem carga (desenergizado).
+   ${item4} 4. Medição de tensão elétrica de alimentação trifásica.
+
+4. PARECER DO SISTEMA:
+   ${diag.gravidade === 'CRITICO' ? 'INTERVENÇÃO CORRETIVA IMEDIATA NECESSÁRIA PELA EQUIPE TÉCNICA.' : diag.gravidade === 'ALERTA' ? 'SOLICITADA INSPEÇÃO PREVENTIVA NO LOCAL.' : 'EQUIPAMENTO EM OPERAÇÃO NORMAL DENTRO DOS PARÂMETROS.'}
+===================================================================`;
+
+            txtArea.value = textoRelatorio;
+        };
+
         window.rotuloFalha = diag => {
             if (!diag || !diag.falhas.length) return undefined;
             const pior = diag.falhas.find(f => f.nivel === 'CRITICO') || diag.falhas[0];
@@ -479,12 +910,12 @@
             }
         };
 
-        /* ---------- HISTÓRICO DE FALHAS (apagado automaticamente a cada 1 hora) ---------- */
+        /* ---------- HISTÓRICO DE FALHAS ---------- */
         const HIST_CHAVE = 'historico-falhas-motor';
-        const HIST_PERIODO_MS = 60 * 60 * 1000;   // reset a cada 1 hora
+        const HIST_PERIODO_MS = 60 * 60 * 1000;
         const HIST_MAX = 200;
         let hist = { inicio: Date.now(), itens: [], atualizado: Date.now() };
-        const ativas = new Map();                  // "origem|sensor" -> falha ainda em andamento
+        const ativas = new Map();
 
         try {
             const salvo = JSON.parse(localStorage.getItem(HIST_CHAVE) || 'null');
@@ -546,7 +977,6 @@
             }
         }
 
-        // Recebe as falhas atuais de uma origem; abre registros novos e encerra os que sumiram
         window.registrarFalhas = (falhas, origem, simulado) => {
             const agora = Date.now();
             const presentes = new Set();
@@ -556,7 +986,7 @@
                 presentes.add(chave);
                 const atual = ativas.get(chave);
                 if (atual && atual.nivel === f.nivel) continue;
-                if (atual) atual.fim = agora;      // mudou de gravidade: fecha o anterior e abre outro
+                if (atual) atual.fim = agora;
                 const item = { inicio: agora, fim: null, nivel: f.nivel, sensor: f.sensor, msg: f.msg, motor: origem, simulado: !!simulado };
                 hist.itens.push(item);
                 if (hist.itens.length > HIST_MAX) hist.itens.splice(0, hist.itens.length - HIST_MAX);
@@ -573,7 +1003,7 @@
             const decorrido = Date.now() - hist.inicio;
             if (decorrido >= HIST_PERIODO_MS || decorrido < 0) {
                 hist = { inicio: Date.now(), itens: [], atualizado: Date.now() };
-                ativas.clear();                    // falha ainda ativa é registrada de novo na próxima leitura
+                ativas.clear();
                 salvarHist();
                 renderHistorico();
             }
@@ -583,7 +1013,6 @@
         renderHistorico();
         setInterval(() => { verificarResetHistorico(); renderHistorico(); }, 1000);
 
-        // Estado compartilhado com o modelo 3D
         window.motorState = { running:false, rpm:0, temp:null, vib:0, corr:0, nivel:'parado' };
 
         window.renderMotorStatus=(status,data)=>{
@@ -598,7 +1027,15 @@
         };
 
         const cards=[['val-temp','Temperatura da superfície'],['val-corrente','Corrente alternada · RMS'],['val-vibracao','Aceleração vetorial · RMS'],['val-rpm','Rotação medida pelo sensor Hall']];
-        for(const [id,note]of cards){const el=document.createElement('p');el.className='card-note';el.textContent=note;$(id).closest('.card').append(el);}
+        for(const [id,note]of cards){
+            const element = $(id);
+            if (element) {
+                const el=document.createElement('p');
+                el.className='card-note';
+                el.textContent=note;
+                element.closest('.card').append(el);
+            }
+        }
 
         let tick=0, demoStart=Date.now(); const baseIds=['val-temp','val-corrente','val-vibracao','val-rpm'];
 
@@ -617,11 +1054,9 @@
                 $(id).textContent=fmt(vals[i],i===3?0:i===0?1:2);
             });
 
-            // Mesmo diagnóstico usado nos dados reais (limites padrão)
             const diag=window.analisarAnomalias({temperatura:vals[0],corrente:vals[1],vibracao:vals[2]});
             const nivel=stopped?'parado':diag.gravidade==='CRITICO'?'critico':diag.gravidade==='ALERTA'?'alerta':'ok';
 
-            // Alimenta o modelo 3D com o cenário escolhido
             window.motorState = { running:!stopped, rpm:vals[3], temp:vals[0], corr:vals[1], vib:vals[2], nivel, rotulo:window.rotuloFalha(diag) };
 
             $('status-motor').textContent=stopped?'Parado · simulado':vibr?'Falha de vibração · simulado':hot?'Temperatura elevada · simulado':'Em funcionamento · simulado';
@@ -631,6 +1066,13 @@
 
             window.renderDiagnostico(diag, stopped?'Modo de demonstração · motor parado.':'Modo de demonstração · operação dentro dos parâmetros normais.');
             window.registrarFalhas(diag.falhas,'Simulação',true);
+            
+            // Atualiza a aba de Manutenção durante a demonstração
+            window.atualizarPainelManutencao(
+                { temperatura: vals[0], corrente: vals[1], vibracao: vals[2], rotacaoRPM: vals[3] },
+                diag,
+                $('nome-motor').value
+            );
         }
 
         function setDemo(on){
@@ -659,7 +1101,7 @@
                 $('conexao').textContent='Conectando aos dados reais…';
                 $('mensagem-painel').textContent='Carregando equipamento…';
                 window.motorState = { running:false, rpm:0, temp:null, vib:0, corr:0, nivel:'semdados' };
-                window.registrarFalhas([], 'transicao', false);   // encerra falhas simuladas em andamento
+                window.registrarFalhas([], 'transicao', false);
                 window.renderMotorStatus({},{});
                 if(window.resumeLive)window.resumeLive();
                 if(window.startLive)window.startLive();
@@ -745,7 +1187,6 @@
         controls.target.copy(ALVO);
         controls.update();
 
-        /* ---------- ILUMINAÇÃO (bem mais clara) ---------- */
         scene.add(new THREE.AmbientLight(0xffffff, 0.55));
         scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x44506a, 0.75));
         const luzPrincipal = new THREE.DirectionalLight(0xffffff, 1.1);
@@ -758,7 +1199,6 @@
         luzContorno.position.set(0, -4, 6);
         scene.add(luzContorno);
 
-        /* ---------- PISO: grade + sombra falsa ---------- */
         const grade = new THREE.GridHelper(8, 16, 0x3b82f6, 0x64748b);
         grade.position.y = -0.93;
         grade.material.transparent = true;
@@ -781,7 +1221,6 @@
         sombra.position.y = -0.925;
         scene.add(sombra);
 
-        /* ---------- MATERIAIS (metalness baixo = não fica escuro sem mapa de ambiente) ---------- */
         const std = (cor, metal, rug) => new THREE.MeshStandardMaterial({ color: cor, metalness: metal, roughness: rug });
         const COR_FRIA = new THREE.Color(0x2b6cb0), COR_QUENTE = new THREE.Color(0xe0472f);
         const COR_ALETA = new THREE.Color(0x24568f), COR_ALETA_Q = new THREE.Color(0xb23a28);
@@ -798,7 +1237,6 @@
         const matCabo = std(0x1f2937, 0.1, 0.7);
         const matGrampo = std(0x4b5563, 0.2, 0.5);
 
-        /* ---------- HELPERS ---------- */
         const cilX = (r, len, mat, seg = 40, aberto = false) => {
             const g = new THREE.CylinderGeometry(r, r, len, seg, 1, aberto);
             g.rotateZ(Math.PI / 2);
@@ -812,10 +1250,9 @@
 
         const grupoMotor = new THREE.Group();
         scene.add(grupoMotor);
-        const rotGroup = new THREE.Group();   // tudo que gira junto com o eixo
+        const rotGroup = new THREE.Group();
         grupoMotor.add(rotGroup);
 
-        /* ---------- PARTES ESTÁTICAS ---------- */
         grupoMotor.add(cilX(0.8, 1.8, matCarcaca, 48));
 
         const aletas = [];
@@ -830,7 +1267,6 @@
         const mancal = cilX(0.24, 0.16, matCarcaca, 32); mancal.position.x = -1.05; grupoMotor.add(mancal);
         const tampaTraseira = cilX(0.8, 0.1, matCarcaca, 48); tampaTraseira.position.x = 0.95; grupoMotor.add(tampaTraseira);
 
-        // Cobertura do ventilador + grade
         const cobertura = cilX(0.82, 0.42, matCobertura, 48, true); cobertura.position.x = 1.17; grupoMotor.add(cobertura);
         for (const r of [0.25, 0.5, 0.78]) { const an = aneloX(r, 0.012, matGrade); an.position.x = 1.38; grupoMotor.add(an); }
         const anelBorda = aneloX(0.8, 0.02, matGrade); anelBorda.position.x = 0.97; grupoMotor.add(anelBorda);
@@ -844,12 +1280,10 @@
         const pe = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.15, 1.8), matCarcaca); pe.position.set(0, -0.85, 0); grupoMotor.add(pe);
         const caixa = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.5), matCarcaca); caixa.position.set(0, 0.95, 0); grupoMotor.add(caixa);
 
-        // Cabo + garra do sensor de corrente (SCT-013)
         const cabo = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 12), matCabo); cabo.position.set(0, 1.3, -0.2); grupoMotor.add(cabo);
         const garra = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.035, 8, 24), matGrampo);
         garra.rotation.x = Math.PI / 2; garra.position.set(0, 1.3, -0.2); grupoMotor.add(garra);
 
-        /* ---------- PARTES INTERNAS (visíveis no Raio-X) ---------- */
         const estator = cilX(0.68, 1.3, matFerro, 48, true); grupoMotor.add(estator);
 
         const bobinas = [];
@@ -864,7 +1298,6 @@
             bobinas.push({ mat, th });
         }
 
-        /* ---------- PARTES GIRATÓRIAS ---------- */
         const eixo = cilX(0.14, 2.75, matEixo, 24); eixo.position.x = -0.075; rotGroup.add(eixo);
         rotGroup.add(cilX(0.4, 1.1, matRotor, 32));
         for (const x of [-0.57, 0.57]) { const ar = cilX(0.44, 0.05, matBarra, 32); ar.position.x = x; rotGroup.add(ar); }
@@ -875,13 +1308,10 @@
             b.rotation.x = th;
             rotGroup.add(b);
         }
-        // Chaveta do eixo (marca visível girando)
         const chaveta = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.05, 0.06), matMarca);
         chaveta.position.set(-1.3, 0.15, 0); rotGroup.add(chaveta);
-        // Disco com ímã (lido pelo sensor Hall)
         const disco = cilX(0.2, 0.05, std(0xe5e7eb, 0.3, 0.4), 32); disco.position.x = -1.2; rotGroup.add(disco);
         const ima = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.09, 0.1), std(0xff4757, 0.2, 0.4)); ima.position.set(-1.2, 0.18, 0); rotGroup.add(ima);
-        // Ventilador
         const cubo = cilX(0.15, 0.12, matVent, 24); cubo.position.x = 1.15; rotGroup.add(cubo);
         for (let i = 0; i < 8; i++) {
             const th = i * 2 * Math.PI / 8;
@@ -891,7 +1321,6 @@
             rotGroup.add(pa);
         }
 
-        /* ---------- SENSORES ---------- */
         const posSensores = {
             max6675: new THREE.Vector3(0.2, 0.85, 0.1),
             mpu6050: new THREE.Vector3(0.7, 0.55, 0.58),
@@ -910,7 +1339,6 @@
         criarEsferaSensor(posSensores.hall, 0x55d5a4, 3);
         criarEsferaSensor(posSensores.sct013, 0x2ed573, 4.5);
 
-        /* ---------- FLUXO DE AR (partículas sopradas pelo ventilador) ---------- */
         const N_PART = 48;
         const partPos = new Float32Array(N_PART * 3);
         const partAng = [], partRaio = [], partVel = [];
@@ -927,7 +1355,6 @@
         particulas.frustumCulled = false;
         grupoMotor.add(particulas);
 
-        /* ---------- MODO RAIO-X ---------- */
         let modoRaioX = false;
         const btnVisao = document.getElementById('btn-visao-interna');
         function aplicarRaioX(on) {
@@ -946,7 +1373,6 @@
             controls.update();
         });
 
-        /* ---------- ETIQUETAS FLUTUANTES + HUD ---------- */
         const tagsDef = [
             { el: document.getElementById('tag-max6675'), pos: posSensores.max6675 },
             { el: document.getElementById('tag-mpu6050'), pos: posSensores.mpu6050 },
@@ -965,7 +1391,6 @@
             }
         }
 
-        /* ---------- MOSTRAR / OCULTAR SENSORES ---------- */
         const btnSensores = document.getElementById('btn-sensores');
         const pecasSensores = [garra, disco, ima, ...esferas.map(e => e.mesh)];
         let sensoresVisiveis = true;
@@ -1001,9 +1426,8 @@
             tagsDef[3].el.textContent = `⚡ SCT-013 · ${num(s.corr, 2)} A`;
         }
 
-        /* ---------- LOOP DE ANIMAÇÃO ---------- */
         const relogio = new THREE.Clock();
-        const OMEGA_MAX = 9;           // rad/s visuais para 1750 RPM
+        const OMEGA_MAX = 9;
         let omega = 0, angulo = 0, campo = 0, acum = 1, nivelAnterior = null;
 
         function animar() {
@@ -1014,7 +1438,6 @@
             const rodando = !!s.running && s.nivel !== 'semdados';
             const rpm = (typeof s.rpm === 'number' && s.rpm > 0) ? s.rpm : (rodando ? 1750 : 0);
 
-            // Aceleração / frenagem suave
             const alvo = rodando ? Math.min(rpm / 1750, 1.6) * OMEGA_MAX : 0;
             omega += (alvo - omega) * (1 - Math.exp(-dt * (alvo > omega ? 1.8 : 1.1)));
             if (omega < 0.005) omega = 0;
@@ -1024,7 +1447,6 @@
             rotGroup.rotation.x = angulo;
             campo += omega * 1.04 * dt;
 
-            // Campo magnético girante nas bobinas do estator
             const corr = typeof s.corr === 'number' ? s.corr : 6;
             const fatorCorr = rodando ? clamp(0.4 + (corr / 12) * 0.6, 0.4, 1) : 0;
             const nivel = s.nivel || 'parado';
@@ -1038,7 +1460,6 @@
                 b.mat.emissiveIntensity = fatorCorr * (0.12 + 1.1 * v * v);
             }
 
-            // Aquecimento da carcaça conforme a temperatura
             const temp = typeof s.temp === 'number' ? s.temp : null;
             const calor = temp === null ? 0 : clamp((temp - 40) / 50, 0, 1);
             const alerta = nivel === 'alerta' || nivel === 'critico';
@@ -1048,18 +1469,15 @@
             matAletas.color.copy(COR_ALETA).lerp(COR_ALETA_Q, calor * 0.75);
             matAletas.emissive.setRGB(calor * 0.35 * pulso, 0, 0);
 
-            // Vibração (tremor do conjunto proporcional à vibração medida)
             const vib = typeof s.vib === 'number' ? s.vib : 0;
             const amp = Math.min(fator * (0.0025 + vib * 0.0035) * (nivel === 'critico' ? 1.8 : nivel === 'alerta' ? 1.4 : 1), 0.04);
             grupoMotor.position.set(0, (Math.random() - 0.5) * amp * 2, (Math.random() - 0.5) * amp * 2);
 
-            // Sensores pulsando
             for (const e of esferas) {
                 const sc = rodando ? 1 + 0.25 * Math.sin(t * 4 + e.fase) : 1;
                 e.mesh.scale.setScalar(sc);
             }
 
-            // Fluxo de ar
             const arr = partGeo.attributes.position.array;
             for (let i = 0; i < N_PART; i++) {
                 let x = arr[i * 3] - partVel[i] * fator * dt * 2.2;
@@ -1073,7 +1491,6 @@
             partMat.opacity = 0.55 * Math.min(fator * 1.5, 1);
             particulas.visible = fator > 0.02;
 
-            // Textos (4x por segundo)
             acum += dt;
             if (acum > 0.25) { acum = 0; atualizarTextos(s, rodando, rpm); }
 
@@ -1147,7 +1564,8 @@
         if (typeof Chart !== 'undefined') window.aplicarTemaGraficos();
 
         for (const s of sensores) {
-            s.chart = typeof Chart === 'undefined' ? null : new Chart($(s.canvas), {
+            const el = $(s.canvas);
+            s.chart = (typeof Chart === 'undefined' || !el) ? null : new Chart(el, {
                 type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: s.cor, borderWidth: 2, tension: .25, pointRadius: 2 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { beginAtZero: true } } }
             });
@@ -1158,7 +1576,6 @@
             for (const s of sensores) if (s.chart) { s.chart.data.labels = []; s.chart.data.datasets[0].data = []; s.chart.update('none'); }
         }
 
-        /* ---------- LISTA DE MOTORES ---------- */
         function renderizarLista() {
             if (window.demoActive) return;
             const lista = $('lista-motores');
@@ -1191,7 +1608,6 @@
             renderizarPainel();
         }
 
-        /* ---------- PAINEL ---------- */
         function renderizarPainel() {
             if (window.demoActive) return;
 
@@ -1212,7 +1628,9 @@
             window.renderDiagnostico(diagnostico, `Equipamento ${motorSelecionado}: Operação dentro dos parâmetros normais.`);
             if (recente) window.registrarFalhas(diagnostico.falhas, motorSelecionado, false);
 
-            // Alimenta o modelo 3D com os dados reais
+            // Atualiza a aba de Manutenção Preditiva com os dados do Firebase
+            window.atualizarPainelManutencao(dados, diagnostico, config.nomeMotor || motorSelecionado);
+
             const vibLida = dados.vibracao ?? dados.vibracaoAceleracaoRms;
             const rpmLido = numero(dados.rotacaoRPM);
             const girando = recente && (status.emOperacao === true || (rpmLido !== null && rpmLido > 30));
@@ -1231,7 +1649,7 @@
 
             for (const s of sensores) {
                 const valLeitura = dados[s.campo] ?? (s.campo === 'vibracao' ? dados.vibracaoAceleracaoRms : null);
-                $(s.elemento).textContent = valor(valLeitura, s.casas);
+                if ($(s.elemento)) $(s.elemento).textContent = valor(valLeitura, s.casas);
 
                 if (mudou && s.chart) {
                     const n = numero(valLeitura);
@@ -1244,7 +1662,6 @@
             assinaturaAnterior = assinatura;
         }
 
-        /* ---------- LOGIN / PERMISSÕES ---------- */
         function atualizarAdminUI() {
             if (window.demoActive) return;
             const user = auth.currentUser;
@@ -1269,7 +1686,6 @@
         };
         onAuthStateChanged(auth, atualizarAdminUI);
 
-        /* ---------- NOME DO EQUIPAMENTO (edição direta) ---------- */
         $('nome-motor').addEventListener('change', async () => {
             if (!admin()) return;
             const nome = $('nome-motor').value.trim();
@@ -1285,7 +1701,6 @@
             }
         });
 
-        /* ---------- ABRIR MOTOR PELO IDENTIFICADOR ---------- */
         $('abrir-id').addEventListener('submit', ev => {
             ev.preventDefault();
             const id = $('motor-id').value.trim();
@@ -1294,7 +1709,6 @@
             $('aviso-lista').textContent = motores[id] ? '' : `O motor "${id}" ainda não tem dados — aguardando a primeira leitura.`;
         });
 
-        /* ---------- MODAL DE CONFIGURAÇÕES / CADASTRO ---------- */
         let modoNovo = false;
         const msgConfig = (texto, erro = false) => {
             const el = $('mensagem-config');
@@ -1388,7 +1802,6 @@
         });
         $('btn-excluir-motor').onclick = async () => {
             if (!admin() || $('confirmar-exclusao').value.trim() !== motorSelecionado) return;
-            if (!window.confirm(`Excluir permanentemente o motor "${motorSelecionado}" e todo o histórico?`)) return;
             const id = motorSelecionado;
             try {
                 await remove(ref(db, `motores/${id}`));
@@ -1403,7 +1816,6 @@
             }
         };
 
-        /* ---------- ASSINATURAS DO BANCO ---------- */
         onValue(ref(db, 'motores'), snapshot => {
             if (window.demoActive) return;
             motores = objeto(snapshot.val());
@@ -1420,10 +1832,8 @@
             $('conexao').textContent = conectado ? 'Conectado ao banco de dados.' : 'Sem conexão com o banco de dados.';
         });
 
-        // Reavalia a "frescura" da leitura a cada segundo (para parar o 3D se a placa parar de enviar)
         setInterval(() => { if (!window.demoActive) renderizarPainel(); }, 1000);
 
-        // Chamado ao voltar da demonstração para os dados reais
         window.resumeLive = () => {
             if (conectado !== null) $('conexao').textContent = conectado ? 'Conectado ao banco de dados.' : 'Sem conexão com o banco de dados.';
             limparGraficos();
