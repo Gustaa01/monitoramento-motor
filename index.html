@@ -329,7 +329,7 @@
         <p id="aviso-lista" class="muted" role="status"></p>
         <form id="abrir-id" class="open-id">
             <label for="motor-id">Abrir motor pelo identificador</label>
-            <input id="motor-id" placeholder="Ex.: motor01" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" required>
+            <input id="motor-id" placeholder="Ex.: motor1" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" required>
             <button class="btn btn-secondary" type="submit">Abrir</button>
         </form>
         <div id="lista-motores" class="motor-list" aria-label="Motores cadastrados"></div>
@@ -517,8 +517,8 @@
             <div class="modal-corpo">
                 <div class="form-grid">
                     <div class="form-grupo nome-completo" id="grupo-config-id" hidden>
-                        <label for="config-id">Identificador único (ex.: motor02)</label>
-                        <input id="config-id" maxlength="40" placeholder="motor02">
+                        <label for="config-id">Identificador único (ex.: motor2)</label>
+                        <input id="config-id" maxlength="40" placeholder="motor2">
                         <span id="aviso-identificador" class="muted"></span>
                     </div>
                     <div class="form-grupo nome-completo">
@@ -612,24 +612,23 @@
             fatorPotencia: 0.85,
             sistemaTrifasico: true,
 
-            // --- CORRENTE (SCT-013 / ACS712) ---
-            // Deixe true se o ESP32 já envia em Amperes; mude para false se enviar ADC bruto (0..4095)
+            // --- CORRENTE (SCT-013 com divisor 2x 10k + capacitor 10uF) ---
             correnteJaCalculadaNoESP: true,
             adcResolucao: 4095,
             tensaoRefESP: 3.3,
-            offsetCorrenteV: 1.65,     // Tensão em repouso (0 A) se correnteJaCalculadaNoESP = false
-            sensibilidadeVA: 0.066,    // V/A (ex.: 0.066 para ACS712-30A ou ganho do SCT-013)
-            offsetCorrenteA: 0.0,      // Ajuste fino de zero (A) caso o sensor tenha desvio fixo
+            offsetCorrenteV: 1.65,     // Ponto médio do divisor resistivo (1,65 V)
+            sensibilidadeVA: 0.066,
+            offsetCorrenteA: 0.0,      // Ajuste fino de zero (A) caso haja desvio fixo
             fatorGanhoCorrente: 1.0,   // Multiplicador de calibração comparado ao alicate amperímetro
-            zonaMortaCorrenteA: 0.15,  // Leituras abaixo de 0.15 A são zeradas (ruído com motor parado)
+            zonaMortaCorrenteA: 0.35,  // Zera ruído basal do ADC abaixo de 0,35 A com circuito montado
 
             // --- VIBRAÇÃO (MPU-6050) ---
-            // Deixe true se o ESP32 já envia em m/s²; mude para false se enviar eixos brutos ax, ay, az (LSB)
             vibracaoJaCalculadaNoESP: true,
+            vibracaoEmMg: true,        // true = ESP32 envia em mg e o site converte para m/s²
             escalaMPU_LSB_G: 16384.0,  // 16384 LSB/g para faixa +-2g
             offsetVibracaoMs2: 0.0,    // Ruído residual com motor desligado (m/s²)
             fatorGanhoVibracao: 1.0,   // Multiplicador de calibração
-            zonaMortaVibracaoMs2: 0.08,// Leituras abaixo de 0.08 m/s² são zeradas em repouso
+            zonaMortaVibracaoMs2: 0.10,// Zera ruído abaixo de ~10 mg com motor parado
 
             // --- TEMPERATURA (MAX6675 + Termopar Tipo K) ---
             offsetTemperaturaC: 0.0,   // Compensação térmica (°C) se houver diferença com termômetro padrão
@@ -667,9 +666,10 @@
             return soma / buf.length;
         }
 
-        window.processarMedicoes = function(dadosBrutos = {}, motorId = 'motor01', especificacoes = {}) {
+        window.processarMedicoes = function(dadosBrutos = {}, motorId = 'motor1', especificacoes = {}, opcoes = {}) {
             const cfg = window.CONFIG_CALIBRACAO;
             const resultado = { ...dadosBrutos };
+            const usarMg = opcoes.vibracaoEmMg !== undefined ? opcoes.vibracaoEmMg : cfg.vibracaoEmMg;
 
             // 1. CÁLCULO E FILTRAGEM DA CORRENTE RMS (A)
             const rawCorr = typeof dadosBrutos.corrente === 'number' && Number.isFinite(dadosBrutos.corrente)
@@ -717,9 +717,9 @@
                 const gy = dadosBrutos.ay / cfg.escalaMPU_LSB_G;
                 const gz = dadosBrutos.az / cfg.escalaMPU_LSB_G;
                 const moduloG = Math.sqrt(gx * gx + gy * gy + gz * gz);
-                vibCalc = Math.abs(moduloG - 1.0) * 9.81;
+                vibCalc = Math.abs(moduloG - 1.0) * 9.80665;
             } else if (rawVib !== null) {
-                vibCalc = rawVib;
+                vibCalc = usarMg ? (rawVib / 1000.0) * 9.80665 : rawVib;
             }
 
             if (vibCalc !== null) {
@@ -744,7 +744,6 @@
                     const tempSuavizada = filtrarMediaMovel(motorId, 'temperatura', tempComOffset);
                     resultado.temperatura = tempSuavizada !== null ? Number(tempSuavizada.toFixed(1)) : null;
                 } else if (bufTemp.length > 0) {
-                    // Mantém a última média válida caso o MAX6675 dê pico de erro SPI
                     const ultimaMedia = bufTemp.reduce((acc, v) => acc + v, 0) / bufTemp.length;
                     resultado.temperatura = Number(ultimaMedia.toFixed(1));
                 } else {
@@ -1200,7 +1199,8 @@ ${textoFalhas}
                 ? { temperatura: 52+a*.5, corrente: 4.7+b*.35, vibracao: 7.6+a*.35+b*.1 }
                 : { temperatura: 46.5+a*.4, corrente: 4.2+b*.12, vibracao: 0.64+a*.06 };
 
-            const dadosProc = window.processarMedicoes(brutos, 'demo', { tensaoVolts: 220, tipoAlimentacao: 'Trifásico' });
+            // Passa { vibracaoEmMg: false } pois os cenários simulados já estão em m/s²
+            const dadosProc = window.processarMedicoes(brutos, 'demo', { tensaoVolts: 220, tipoAlimentacao: 'Trifásico' }, { vibracaoEmMg: false });
             const vals = [dadosProc.temperatura, dadosProc.corrente, dadosProc.vibracao];
 
             baseIds.forEach((id,i)=>{
@@ -1693,7 +1693,8 @@ ${textoFalhas}
         const valor = (v, casas) => numero(v) === null ? '--' : numero(v).toFixed(casas);
         const idValido = id => /^[A-Za-z0-9_-]{1,40}$/.test(id);
 
-        let motorSelecionado = 'motor01', selecaoAutomaticaPendente = true, motores = {};
+        // Padrão 'motor1' para coincidir com MOTOR_ID do ESP32
+        let motorSelecionado = 'motor1', selecaoAutomaticaPendente = true, motores = {};
         let assinaturaAnterior = null;
         let conectado = null;
 
@@ -1737,7 +1738,15 @@ ${textoFalhas}
                 const m = objeto(motores[id]);
                 const nome = objeto(m.configuracoes).nomeMotor || id;
                 const d = objeto(m.dadosAtuais);
-                const vibTile = d.vibracao ?? d.vibracaoAceleracaoRms;
+                const vibBruta = numero(d.vibracao ?? d.vibracaoAceleracaoRms);
+                const vibTile = (vibBruta !== null && window.CONFIG_CALIBRACAO?.vibracaoEmMg)
+                    ? (vibBruta / 1000.0) * 9.80665
+                    : vibBruta;
+                const corrBruta = numero(d.corrente);
+                const corrTile = (corrBruta !== null && corrBruta < (window.CONFIG_CALIBRACAO?.zonaMortaCorrenteA ?? 0.35))
+                    ? 0
+                    : corrBruta;
+
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'motor-tile';
@@ -1745,7 +1754,7 @@ ${textoFalhas}
                 const l1 = document.createElement('span'); l1.className = 'tile-id'; l1.textContent = id;
                 const l2 = document.createElement('strong'); l2.textContent = nome;
                 const l3 = document.createElement('span'); l3.className = 'tile-values';
-                l3.textContent = `${valor(d.temperatura, 1)} °C · ${valor(d.corrente, 2)} A · ${valor(vibTile, 2)} m/s²`;
+                l3.textContent = `${valor(d.temperatura, 1)} °C · ${valor(corrTile, 2)} A · ${valor(vibTile, 2)} m/s²`;
                 btn.append(l1, l2, l3);
                 btn.addEventListener('click', () => selecionarMotor(id));
                 lista.append(btn);
@@ -1775,15 +1784,15 @@ ${textoFalhas}
 
             $('especificacoes-motor').textContent = `${e.tipoAlimentacao ?? '--'} ${e.tensaoVolts ?? '--'}V | ${e.potenciaCV ?? '--'} CV`;
 
-            // Aplica conversão, filtragem de zona morta e média móvel nos dados recebidos
+            // Aplica conversão (mg -> m/s²), filtragem de zona morta e média móvel nos dados recebidos
             const dados = window.processarMedicoes(dadosBrutos, motorSelecionado, e);
 
             // Atualiza rodapé do card de corrente com a potência ativa estimada
             const noteCorr = $('note-val-corrente');
             if (noteCorr) {
-                noteCorr.textContent = typeof dados.potenciaWatts === 'number'
+                noteCorr.textContent = (typeof dados.corrente === 'number' && dados.corrente > 0)
                     ? `Corrente alternada · RMS · Potência est.: ${dados.potenciaWatts} W`
-                    : 'Corrente alternada · RMS (SCT-013)';
+                    : 'Corrente alternada · RMS (SCT-013 · Motor sem carga)';
             }
 
             // Detecta operação por corrente/vibração caso status.emOperacao não venha explícito
@@ -1966,7 +1975,7 @@ ${textoFalhas}
             try {
                 await remove(ref(db, `motores/${id}`));
                 const restantes = Object.keys(motores).filter(m => m !== id && idValido(m)).sort();
-                motorSelecionado = restantes[0] || 'motor01';
+                motorSelecionado = restantes[0] || 'motor1';
                 selecaoAutomaticaPendente = restantes.length === 0;
                 limparGraficos();
                 fecharModal();
