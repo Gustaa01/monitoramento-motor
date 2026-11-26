@@ -348,7 +348,7 @@
         <div class="motor-info">
             <strong>Status:</strong> <span id="status-motor">Não informado</span><br>
             <strong>Operação acumulada:</strong> <span id="uptime">Não informado</span><br>
-            <strong>Especificações:</strong> <span id="especificacoes-motor">Trifásico 220V | 5 CV</span>
+            <strong>Especificações:</strong> <span id="especificacoes-motor">Trifásico 220V | 3 CV</span>
             <div class="admin-controls">
                 <span id="admin-info">Visitante</span>
                 <button type="button" id="btn-configuracoes" class="btn btn-secondary" hidden>⚙ Configurações</button>
@@ -604,10 +604,8 @@
 
         /* =====================================================================
            MÓDULO DE CALIBRAÇÃO E CÁLCULO DAS MEDIÇÕES DOS SENSORES
-           Ajuste os parâmetros abaixo conforme a bancada de testes do SENAI
            ===================================================================== */
         window.CONFIG_CALIBRACAO = {
-            // Parâmetros elétricos nominais (usados se não estiverem cadastrados no Firebase)
             tensaoNominalPadrao: 220,
             fatorPotencia: 0.85,
             sistemaTrifasico: true,
@@ -616,27 +614,28 @@
             correnteJaCalculadaNoESP: true,
             adcResolucao: 4095,
             tensaoRefESP: 3.3,
-            offsetCorrenteV: 1.65,     // Ponto médio do divisor resistivo (1,65 V)
+            offsetCorrenteV: 1.65,
             sensibilidadeVA: 0.066,
-            offsetCorrenteA: 0.0,      // Ajuste fino de zero (A) caso haja desvio fixo
-            fatorGanhoCorrente: 1.0,   // Multiplicador de calibração comparado ao alicate amperímetro
-            zonaMortaCorrenteA: 0.35,  // Zera ruído basal do ADC abaixo de 0,35 A com circuito montado
+            offsetCorrenteA: 0.0,
+            fatorGanhoCorrente: 1.0,
+            zonaMortaCorrenteA: 0.04,  // Aceita qualquer corrente real >= 0,05 A (mesmo pouca)
+            limiarMotorLigadoA: 0.05,  // Gatilho para ligar o modelo 3D
 
             // --- VIBRAÇÃO (MPU-6050) ---
             vibracaoJaCalculadaNoESP: true,
-            vibracaoEmMg: true,        // true = ESP32 envia em mg e o site converte para m/s²
-            escalaMPU_LSB_G: 16384.0,  // 16384 LSB/g para faixa +-2g
-            offsetVibracaoMs2: 0.0,    // Ruído residual com motor desligado (m/s²)
-            fatorGanhoVibracao: 1.0,   // Multiplicador de calibração
-            zonaMortaVibracaoMs2: 0.10,// Zera ruído abaixo de ~10 mg com motor parado
+            vibracaoEmMg: true,
+            escalaMPU_LSB_G: 16384.0,
+            offsetVibracaoMs2: 0.0,
+            fatorGanhoVibracao: 1.0,
+            zonaMortaVibracaoMs2: 0.10,
 
             // --- TEMPERATURA (MAX6675 + Termopar Tipo K) ---
-            offsetTemperaturaC: 0.0,   // Compensação térmica (°C) se houver diferença com termômetro padrão
-            tempMinValida: 1.0,        // Abaixo disso considera erro de leitura / termopar desconectado
-            tempMaxValida: 300.0,      // Acima disso considera ruído na comunicação SPI
+            offsetTemperaturaC: 0.0,
+            tempMinValida: 1.0,
+            tempMaxValida: 300.0,
 
             // --- FILTRO DE SUAVIZAÇÃO (MÉDIA MÓVEL) ---
-            tamanhoJanelaMediaMovel: 4 // Quantidade de amostras na janela (1 = sem média móvel)
+            tamanhoJanelaMediaMovel: 3
         };
 
         const buffersMediaMovel = {};
@@ -660,6 +659,14 @@
             if (typeof valorNovo !== 'number' || !Number.isFinite(valorNovo)) return null;
             const buf = obterBufferMotor(motorId)[chave];
             const janela = Math.max(1, Math.round(window.CONFIG_CALIBRACAO.tamanhoJanelaMediaMovel || 1));
+
+            // Resposta imediata na partida ou parada (evita atraso quando sai de 0 ou volta a 0)
+            if (chave === 'corrente' && buf.length > 0) {
+                const anteriorZero = buf[buf.length - 1] === 0;
+                const atualZero = valorNovo === 0;
+                if (anteriorZero !== atualZero) buf.length = 0;
+            }
+
             buf.push(valorNovo);
             if (buf.length > janela) buf.shift();
             const soma = buf.reduce((acc, v) => acc + v, 0);
@@ -847,7 +854,6 @@
             containerCausas.replaceChildren();
             const causasDef = [];
 
-            // 1. ANÁLISE DE TEMPERATURA
             if (temp !== null) {
                 if (temp >= 85.0) {
                     causasDef.push({
@@ -874,7 +880,6 @@
                 }
             }
 
-            // 2. ANÁLISE DE VIBRAÇÃO
             if (vib !== null) {
                 if (vib >= 7.1) {
                     causasDef.push({
@@ -901,7 +906,6 @@
                 }
             }
 
-            // 3. ANÁLISE DE CORRENTE
             if (corr !== null && corr > 0.5) {
                 if (corr >= 15.0) {
                     causasDef.push({
@@ -976,7 +980,7 @@
             const vib = typeof dados.vibracao === 'number' ? dados.vibracao.toFixed(2) + ' m/s²' : '--';
             const corr = typeof dados.corrente === 'number' ? dados.corrente.toFixed(2) + ' A' : '--';
             const pot = typeof dados.potenciaWatts === 'number' ? dados.potenciaWatts + ' W' : '--';
-            const specs = $('especificacoes-motor')?.textContent || 'Trifásico 220V | 5 CV';
+            const specs = $('especificacoes-motor')?.textContent || 'Trifásico 220V | 3 CV';
 
             let textoFalhas = 'Nenhuma anomalia crítica reportada pelos sensores no momento.';
             if (diag.falhas && diag.falhas.length > 0) {
@@ -1153,13 +1157,20 @@ ${textoFalhas}
 
         window.motorState = { running:false, temp:null, vib:0, corr:0, nivel:'parado' };
 
-        window.renderMotorStatus=(status,data,emOperacaoInferida)=>{
-            const stamp=typeof data.timestamp==='number'?data.timestamp:status.ultimaAtualizacao;
-            const age=typeof stamp==='number'?Date.now()-stamp:Infinity;
-            const fresh=age>=-5000&&age<=20000;
-            const operando = typeof status.emOperacao === 'boolean' ? status.emOperacao : emOperacaoInferida;
+        window.renderMotorStatus=(status,data,emOperacaoInferida,ultimoPacoteLocalMs=null)=>{
+            let stamp=typeof data.timestamp==='number'?data.timestamp:status.ultimaAtualizacao;
+            // Normaliza caso o timestamp venha em segundos (Unix epoch de 10 dígitos)
+            if (typeof stamp === 'number' && stamp > 1e9 && stamp < 1e11) stamp *= 1000;
 
-            $('reading-age').textContent=!Number.isFinite(age)?'Aguardando primeira leitura':fresh?'Última leitura · '+Math.max(0,Math.floor(age/1000))+' s atrás':'Sem leitura recente · '+new Date(stamp).toLocaleTimeString('pt-BR');
+            const temEpochValido = typeof stamp === 'number' && stamp > 1700000000000;
+            const refTempo = temEpochValido ? stamp : ultimoPacoteLocalMs;
+            const age = typeof refTempo === 'number' ? Date.now() - refTempo : Infinity;
+            const fresh = age >= -10000 && age <= 30000;
+
+            const correnteAtiva = typeof data.corrente === 'number' && data.corrente >= (window.CONFIG_CALIBRACAO?.limiarMotorLigadoA ?? 0.05);
+            const operando = correnteAtiva || (typeof status.emOperacao === 'boolean' ? status.emOperacao : emOperacaoInferida);
+
+            $('reading-age').textContent=!Number.isFinite(age)?'Aguardando primeira leitura':fresh?'Última leitura · '+Math.max(0,Math.floor(age/1000))+' s atrás':'Sem leitura recente · '+new Date(refTempo).toLocaleTimeString('pt-BR');
             $('status-motor').textContent=!fresh?'Sem dados recentes':operando===true?'Em funcionamento':operando===false?'Parado':'Operação não informada';
             $('status-motor').style.color=fresh&&operando===true?'var(--ok-green)':'var(--text-muted)';
             $('uptime').textContent=duration(status.tempoOperacaoTotalSegundos);
@@ -1192,14 +1203,13 @@ ${textoFalhas}
             const stopped=cenario==='parado', hot=cenario==='alerta', vibr=cenario==='vibracao';
             const a=Math.sin(tick*.37), b=Math.sin(tick*.9);
             const brutos=stopped
-                ? { temperatura: 29+a*.1, corrente: 0.04, vibracao: 0.02 }
+                ? { temperatura: 29+a*.1, corrente: 0.0, vibracao: 0.02 }
                 : hot
                 ? { temperatura: 83+a*.7, corrente: 4.2+b*.12, vibracao: 0.64+a*.06 }
                 : vibr
                 ? { temperatura: 52+a*.5, corrente: 4.7+b*.35, vibracao: 7.6+a*.35+b*.1 }
                 : { temperatura: 46.5+a*.4, corrente: 4.2+b*.12, vibracao: 0.64+a*.06 };
 
-            // Passa { vibracaoEmMg: false } pois os cenários simulados já estão em m/s²
             const dadosProc = window.processarMedicoes(brutos, 'demo', { tensaoVolts: 220, tipoAlimentacao: 'Trifásico' }, { vibracaoEmMg: false });
             const vals = [dadosProc.temperatura, dadosProc.corrente, dadosProc.vibracao];
 
@@ -1245,7 +1255,7 @@ ${textoFalhas}
 
             if(on){
                 $('nome-motor').value='Motor de indução · bancada SENAI';
-                $('especificacoes-motor').textContent='Exemplo ilustrativo · Trifásico 220 V | 5 CV';
+                $('especificacoes-motor').textContent='Exemplo ilustrativo · Trifásico 220 V | 3 CV';
                 $('conexao').textContent='Apresentação independente da placa e da conexão com o banco.';
                 for(let i=0;i<10;i++)drawDemo();
             } else {
@@ -1697,6 +1707,8 @@ ${textoFalhas}
         let motorSelecionado = 'motor1', selecaoAutomaticaPendente = true, motores = {};
         let assinaturaAnterior = null;
         let conectado = null;
+        const assinaturasPorMotor = {};
+        const ultimoRecebimentoLocal = {};
 
         // Apenas os 3 sensores ativos
         const sensores = [
@@ -1743,7 +1755,7 @@ ${textoFalhas}
                     ? (vibBruta / 1000.0) * 9.80665
                     : vibBruta;
                 const corrBruta = numero(d.corrente);
-                const corrTile = (corrBruta !== null && corrBruta < (window.CONFIG_CALIBRACAO?.zonaMortaCorrenteA ?? 0.35))
+                const corrTile = (corrBruta !== null && corrBruta < (window.CONFIG_CALIBRACAO?.zonaMortaCorrenteA ?? 0.04))
                     ? 0
                     : corrBruta;
 
@@ -1795,9 +1807,11 @@ ${textoFalhas}
                     : 'Corrente alternada · RMS (SCT-013 · Motor sem carga)';
             }
 
-            // Detecta operação por corrente/vibração caso status.emOperacao não venha explícito
-            const emOperacaoInferida = (numero(dados.corrente) ?? 0) > 0.35 || (numero(dados.vibracao) ?? 0) > 0.25;
-            const recente = window.renderMotorStatus(status, dados, emOperacaoInferida);
+            // Detecta operação sempre que a corrente medir >= 0,05 A (mesmo pouca) ou houver vibração
+            const limiarCorrente = window.CONFIG_CALIBRACAO?.limiarMotorLigadoA ?? 0.05;
+            const correnteAtiva = (numero(dados.corrente) ?? 0) >= limiarCorrente;
+            const emOperacaoInferida = correnteAtiva || (numero(dados.vibracao) ?? 0) > 0.25;
+            const recente = window.renderMotorStatus(status, dados, emOperacaoInferida, ultimoRecebimentoLocal[motorSelecionado] ?? null);
 
             const diagnostico = analisarAnomalias(dados, limites);
             window.renderDiagnostico(diagnostico, `Equipamento ${motorSelecionado}: Operação dentro dos parâmetros normais.`);
@@ -1806,7 +1820,7 @@ ${textoFalhas}
             // Atualiza a aba de Manutenção Preditiva com os dados tratados
             window.atualizarPainelManutencao(dados, diagnostico, config.nomeMotor || motorSelecionado);
 
-            const girando = recente && (typeof status.emOperacao === 'boolean' ? status.emOperacao : emOperacaoInferida);
+            const girando = recente && (correnteAtiva || (typeof status.emOperacao === 'boolean' ? status.emOperacao : emOperacaoInferida));
             window.motorState = {
                 rotulo: recente ? window.rotuloFalha(diagnostico) : undefined,
                 running: girando,
@@ -1903,7 +1917,7 @@ ${textoFalhas}
             const tipos = ['Monofásico', 'Bifásico', 'Trifásico'];
             $('config-alimentacao').value = !novo && tipos.includes(e.tipoAlimentacao) ? e.tipoAlimentacao : 'Trifásico';
             $('config-tensao').value = novo ? 220 : (numero(e.tensaoVolts) ?? '');
-            $('config-potencia').value = novo ? 5 : (numero(e.potenciaCV) ?? '');
+            $('config-potencia').value = novo ? 3 : (numero(e.potenciaCV) ?? '');
             $('confirmar-exclusao').value = '';
             $('btn-excluir-motor').disabled = true;
             msgConfig('');
@@ -1990,6 +2004,20 @@ ${textoFalhas}
             if (window.demoActive) return;
             motores = objeto(snapshot.val());
             const ids = Object.keys(motores).filter(idValido).sort();
+
+            for (const id of ids) {
+                const dadosMotor = objeto(motores[id].dadosAtuais);
+                const novaAssinatura = JSON.stringify(dadosMotor);
+                if (assinaturasPorMotor[id] !== novaAssinatura) {
+                    const jaExistia = assinaturasPorMotor[id] !== undefined;
+                    assinaturasPorMotor[id] = novaAssinatura;
+                    // Marca recebimento ao vivo sempre que os dados atualizarem ou se já houver leitura ativa ao abrir
+                    if (jaExistia || Object.keys(dadosMotor).length > 0) {
+                        ultimoRecebimentoLocal[id] = Date.now();
+                    }
+                }
+            }
+
             if (selecaoAutomaticaPendente && ids.length > 0) {
                 if (!motores[motorSelecionado]) {
                     motorSelecionado = ids[0];
